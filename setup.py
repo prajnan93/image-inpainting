@@ -6,7 +6,7 @@ from setuptools import find_packages, setup
 
 # Basic Information
 NAME = "inpaint"
-VERSION = "0.0.1"
+VERSION = "0.1.0"
 DESCRIPTION = "A python package for image inpainting"
 REPOSITORY = "https://github.com/prajnan93/image-inpainting"
 
