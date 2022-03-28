@@ -34,12 +34,12 @@ class Trainer:
     def _train_gan(self):
         raise NotImplementedError
 
+        # TODO: Setup loss functions and optimizers
+
     def train(self):
         raise NotImplementedError
 
         # TODO: Setup checkpoints and log directory
-
-        # TODO: Setup loss functions and optimizers
 
         # TODO: Save best discriminator and generator model
 
