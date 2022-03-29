@@ -4,7 +4,6 @@ channels:
 - pytorch
 - conda-forge
 dependencies:
-- cudatoolkit=11.3
 - einops=0.3.2
 - jupyter=1.0.0
 - matplotlib=3.4.2
