@@ -1,5 +1,6 @@
 import os
 import pathlib
+import platform
 
 import pkg_resources
 from setuptools import find_packages, setup
@@ -33,7 +34,11 @@ EXCLUDES = ()
 
 # Important Paths
 PROJECT = os.path.abspath(os.path.dirname(__file__))
-REQUIRE_PATH = "requirements.txt"
+
+if platform.system().lower() == "windows":
+    REQUIRE_PATH = "requirements.txt"
+else:
+    REQUIRE_PATH = "requirements_mac.txt"
 
 
 with pathlib.Path("requirements.txt").open() as requirements_txt:
