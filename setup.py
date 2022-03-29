@@ -41,7 +41,7 @@ else:
     REQUIRE_PATH = "requirements_mac.txt"
 
 
-with pathlib.Path("requirements.txt").open() as requirements_txt:
+with pathlib.Path(REQUIRE_PATH).open() as requirements_txt:
     INSTALL_REQUIRES = [
         str(requirement)
         for requirement in pkg_resources.parse_requirements(requirements_txt)
