@@ -38,7 +38,7 @@ PROJECT = os.path.abspath(os.path.dirname(__file__))
 if platform.system().lower() == "windows":
     REQUIRE_PATH = "requirements.txt"
 else:
-    REQUIRE_PATH = "requirements_mac.txt"
+    REQUIRE_PATH = "envMacm1pro.txt"
 
 
 with pathlib.Path(REQUIRE_PATH).open() as requirements_txt:
