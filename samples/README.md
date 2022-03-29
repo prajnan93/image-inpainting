@@ -1,0 +1,1 @@
+Test Data from Places365 dataset for validating implementation.
