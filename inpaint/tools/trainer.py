@@ -114,10 +114,10 @@ class Trainer:
                     coarse_out,
                     refine_out,
                     refine_out_wholeimg,
-                ) = self.train_discriminator(img, mask, optimizer_d)
+                ) = self._train_discriminator(img, mask, optimizer_d)
 
                 # Train generator
-                loss_g = self.train_generator(
+                loss_g = self._train_generator(
                     img, mask, coarse_out, refine_out, refine_out_wholeimg, optimizer_g
                 )
 
