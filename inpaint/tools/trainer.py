@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import torch
 
-from inpaint.data import random_bbox, random_ff_mask
+from inpaint.utils import random_bbox, random_ff_mask
 
 
 class Trainer:
