@@ -94,7 +94,6 @@ class Trainer:
         B, C, H, W = img.shape
 
         # LSGAN vectors
-        fake = Tensor(np.zeros((B, 1, H // 32, W // 32)))
         valid = Tensor(np.ones((B, 1, H // 32, W // 32)))
         zero = Tensor(np.zeros((B, 1, H // 32, W // 32)))
 
@@ -213,14 +212,38 @@ class Trainer:
                 losses["loss_r"].update(loss_r.item(), img.size(0))
                 losses["whole_loss"].update(whole_loss.item(), item.size(0))
 
+                # Logging and Tensorboard Summary Writer
                 if iteration % self.cfg.LOG_INTERVAL == 0:
                     total_iterations = iteration + (epochs * len(self.train_loader))
 
                     print(
-                        f"Iteration {iteration}/{total_iterations} Discriminator Loss: {losses['loss_d'].avg}, GAN Loss: {losses['loss_g'].avg}, Reconstruction Loss: {losses['loss_r'].avg}, Overall Generator Loss: {losses['whole_loss'].avg}"
+                        f"Iteration {iteration}/{total_iterations}"
+                        + f" Discriminator Loss: {losses['loss_d'].avg},"
+                        + f" GAN Loss: {losses['loss_g'].avg},"
+                        + f" Reconstruction Loss: {losses['loss_r'].avg},"
+                        + f" Overall Generator Loss: {losses['whole_loss'].avg}"
                     )
 
-                # TODO: Summary writer | Save intermediate result output
+                    writer.add_scaler(
+                        "avg_batch_Discriminator_loss",
+                        losses["loss_d"].avg,
+                        total_iterations,
+                    )
+                    writer.add_scaler(
+                        "avg_batch_GAN_loss", losses["loss_g"].avg, total_iterations
+                    )
+                    writer.add_scaler(
+                        "avg_batch_Reconstruction_loss",
+                        losses["loss_r"].avg,
+                        total_iterations,
+                    )
+                    writer.add_scaler(
+                        "avg_batch_Generator_loss",
+                        losses["whole_loss"].avg,
+                        total_iterations,
+                    )
+
+                # TODO: Save intermediate result output
 
     def train(self):
         raise NotImplementedError
