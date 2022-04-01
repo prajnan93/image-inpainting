@@ -1,3 +1,4 @@
+import os
 from copy import deepcopy
 
 import torch
@@ -70,6 +71,14 @@ class Trainer:
         )
 
         return (optimizer_d, optimzer_g)
+
+    def _adjust_learning_rate(self, lr_in, optimizer, epoch):
+        """Set the learning rate to the initial LR decayed by "lr_decrease_factor" every "lr_decrease_epoch" epochs"""
+        lr = lr_in * (
+            self.cfg.lr_decrease_factor ** (epoch // self.cfg.lr_decrease_epoch)
+        )
+        for param_group in optimizer.param_groups:
+            param_group["lr"] = lr
 
     def _create_mask(self, img):
 
@@ -175,6 +184,10 @@ class Trainer:
         start_epoch = 0
         total_epochs = self.cfg.epochs
 
+        min_avg_val_gan_loss = float("inf")
+        min_avg_val_ssim = float("inf")
+        min_avg_val_psnr = float("inf")
+
         # Start Training
         for epoch in range(start_epoch, start_epoch + total_epochs):
 
@@ -201,7 +214,7 @@ class Trainer:
                     refine_out_wholeimg,
                 ) = self._train_discriminator(img, mask, optimizer_d)
 
-                # Train generator
+                # Train Generator
                 loss_g, loss_r, whole_loss = self._train_generator(
                     img, mask, coarse_out, refine_out, refine_out_wholeimg, optimizer_g
                 )
@@ -225,35 +238,87 @@ class Trainer:
                     )
 
                     writer.add_scaler(
-                        "avg_batch_Discriminator_loss",
+                        "avg_batch_discriminator_loss",
                         losses["loss_d"].avg,
                         total_iterations,
                     )
                     writer.add_scaler(
-                        "avg_batch_GAN_loss", losses["loss_g"].avg, total_iterations
+                        "avg_batch_gan_loss", losses["loss_g"].avg, total_iterations
                     )
                     writer.add_scaler(
-                        "avg_batch_Reconstruction_loss",
+                        "avg_batch_reconstruction_loss",
                         losses["loss_r"].avg,
                         total_iterations,
                     )
                     writer.add_scaler(
-                        "avg_batch_Generator_loss",
+                        "avg_batch_generator_loss",
                         losses["whole_loss"].avg,
                         total_iterations,
                     )
 
-                # TODO: Save intermediate result output
+            # Validate and save best model
+            (
+                min_avg_val_gan_loss,
+                min_avg_val_psnr,
+                min_avg_val_ssim,
+            ) = self._validate_gan()
+
+            # TODO: save best models
+
+            # Adjust learning rate
+            self._adjust_learning_rate(self.cfg.lr_d, optimizer_d, epoch + 1)
+            self._adjust_learning_rate(self.cfg.lr_g, optimizer_g, epoch + 1)
+
+            # Save checkpoints
+            consolidated_save_dict = {
+                "generator_state_dict": self.generator.state_dict(),
+                "discriminator_state_dict": self.discriminator.state_dict(),
+                "optimizer": optimizer.state_dict(),
+                "epoch": epoch,
+            }
+            torch.save(
+                consolidated_save_dict,
+                os.path.join(
+                    self.cfg.CKPT_DIR,
+                    "ckpt_epoch" + str(epoch + 1) + ".pth",
+                ),
+            )
+
+            # TODO: Save intermediate result output
+
+        return (best_generator, best_discriminator)
+
+    def _validate_gan(self):
+
+        # Set models to eval state for validation
+        self.generator.eval()
+        self.discriminator.eval()
+
+        loss_metric = AverageMeter()
+        psnr_metric = AverageMeter()
+        ssim_metric = AverageMeter()
+
+        # TODO: validation
+
+        # Set model back to train state after validation
+        self.generator.train()
+        self.discriminator.train()
 
     def train(self):
-        raise NotImplementedError
+        os.makedirs(self.cfg.CKPT_DIR, exist_ok=True)
+        os.makedirs(self.cfg.LOG_DIR, exist_ok=True)
+        os.makedirs(self.cfg.IMG_DIR, exist_ok=True)
 
-        # TODO: Setup checkpoints and log directory
+        best_generator, best_discriminator = self._train_gan()
 
-        # TODO: Save best discriminator and generator model
+        best_models_dict = {
+            "generator_state_dict": best_generator.state_dict(),
+            "discriminator_state_dict": best_discriminator.state_dict(),
+        }
 
-    def _validate_generator(self):
-        raise NotImplementedError
+        torch.save(
+            best_models_dict,
+            os.path.join(self.cfg.CKPT_DIR, "best_models.pth"),
+        )
 
-    def _validate_discriminator(self):
-        raise NotImplementedError
+        print("Saved best generator and discriminator")
