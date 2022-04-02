@@ -184,9 +184,10 @@ class Trainer:
         start_epoch = 0
         total_epochs = self.cfg.epochs
 
-        min_avg_val_gan_loss = float("inf")
-        min_avg_val_ssim = float("inf")
-        min_avg_val_psnr = float("inf")
+        min_avg_val_loss_r = float("inf")
+        min_avg_val_loss_d = float("inf")
+        min_avg_val_loss_g = float("inf")
+        min_avg_val_loss_whole = float("inf")
 
         # Start Training
         for epoch in range(start_epoch, start_epoch + total_epochs):
@@ -204,6 +205,8 @@ class Trainer:
             for iteration, img in enumerate(self.train_loader):
 
                 img = img.to(self.device)
+                B, C, H, W = img.shape
+
                 mask = self._create_mask(img)
 
                 # Train Discriminator
@@ -220,10 +223,10 @@ class Trainer:
                 )
 
                 # Track loss history
-                losses["loss_d"].update(loss_d.item(), img.size(0))
-                losses["loss_g"].update(loss_g.item(), img.size(0))
-                losses["loss_r"].update(loss_r.item(), img.size(0))
-                losses["whole_loss"].update(whole_loss.item(), item.size(0))
+                losses["loss_d"].update(loss_d.item(), B)
+                losses["loss_g"].update(loss_g.item(), B)
+                losses["loss_r"].update(loss_r.item(), B)
+                losses["whole_loss"].update(whole_loss.item(), B)
 
                 # Logging and Tensorboard Summary Writer
                 if iteration % self.cfg.LOG_INTERVAL == 0:
@@ -238,32 +241,59 @@ class Trainer:
                     )
 
                     writer.add_scaler(
-                        "avg_batch_discriminator_loss",
+                        "avg_train_discriminator_loss",
                         losses["loss_d"].avg,
                         total_iterations,
                     )
                     writer.add_scaler(
-                        "avg_batch_gan_loss", losses["loss_g"].avg, total_iterations
+                        "avg_train_gan_loss", losses["loss_g"].avg, total_iterations
                     )
                     writer.add_scaler(
-                        "avg_batch_reconstruction_loss",
+                        "avg_train_reconstruction_loss",
                         losses["loss_r"].avg,
                         total_iterations,
                     )
                     writer.add_scaler(
-                        "avg_batch_generator_loss",
+                        "avg_train_generator_loss",
                         losses["whole_loss"].avg,
                         total_iterations,
                     )
 
             # Validate and save best model
-            (
-                min_avg_val_gan_loss,
-                min_avg_val_psnr,
-                min_avg_val_ssim,
-            ) = self._validate_gan()
+            val_losses = self._validate_gan(writer)
 
-            # TODO: save best models
+            save_best_models = False
+            if val_losses["loss_d"] < min_avg_val_loss_d:
+                min_avg_val_loss_d = val_losses["loss_d"]
+                save_best_models = True
+
+            if val_losses["loss_g"] < min_avg_val_loss_g:
+                min_avg_val_loss_g = val_losses["loss_g"]
+                save_best_models = True
+
+            if val_losses["loss_r"] < min_avg_val_loss_r:
+                min_avg_val_loss_r = val_losses["loss_r"]
+                save_best_models = True
+
+            if val_losses["whole_loss"] < min_avg_val_loss_whole:
+                min_avg_val_loss_whole = val_losses["whole_loss"]
+                save_best_models = True
+
+            if save_best_models:
+                best_discriminator = deepcopy(self.discriminator)
+                best_generator = deepcopy(self.generator)
+
+                best_models_dict = {
+                    "generator_state_dict": best_generator.state_dict(),
+                    "discriminator_state_dict": best_discriminator.state_dict(),
+                }
+
+                torch.save(
+                    best_models_dict,
+                    os.path.join(self.cfg.CKPT_DIR, "best_models.pth"),
+                )
+
+                print("Saved final best generator and discriminator")
 
             # Adjust learning rate
             self._adjust_learning_rate(self.cfg.lr_d, optimizer_d, epoch + 1)
@@ -285,24 +315,116 @@ class Trainer:
             )
 
             # TODO: Save intermediate result output
+            print("\n")
 
         return (best_generator, best_discriminator)
 
-    def _validate_gan(self):
+    def _validate_gan(self, writer):
 
         # Set models to eval state for validation
         self.generator.eval()
         self.discriminator.eval()
 
-        loss_metric = AverageMeter()
-        psnr_metric = AverageMeter()
-        ssim_metric = AverageMeter()
+        losses = {
+            "loss_g": AverageMeter(),
+            "loss_d": AverageMeter(),
+            "loss_r": AverageMeter(),
+            "whole_loss": AverageMeter(),
+        }
 
-        # TODO: validation
+        with torch.no_grad():
+            for img in self.val_loader:
+
+                img = img.to(self.device)
+                B, C, H, W = img.shape
+
+                mask = self._create_mask(img)
+
+                # Discriminator validation
+                # LSGAN vectors
+                valid = Tensor(np.ones((B, 1, H // 32, W // 32)))
+                zero = Tensor(np.zeros((B, 1, H // 32, W // 32)))
+
+                # Generate fake pixel values for the given mask and real images
+                coarse_out, refine_out = self.generator(real_img, mask)
+
+                coarse_out_wholeimg = real_img * (1 - mask) + coarse_out * mask
+                refine_out_wholeimg = real_img * (1 - mask) + refine_out * mask
+
+                # Pass fake images through discriminator
+                fake_preds = self.discriminator(refine_out_wholeimg.detach(), mask)
+                fake_loss = -torch.mean(torch.min(zero, -valid - fake_preds))
+
+                # Pass real images through discriminator
+                real_preds = self.discriminator(real_img, mask)
+                real_loss = -torch.mean(torch.min(zero, -valid + real_preds))
+
+                # Compute overall loss
+                loss_d = 0.5 * (fake_loss + real_loss)
+
+                # Generator validation
+                # Pass fake image to the discriminaton | Try to fool the discriminator
+                preds = self.discriminator(refine_out_wholeimg)
+
+                # GAN Loss
+                loss_g = -torch.mean(preds)
+
+                # L1 Reconstruction Loss
+                coarse_L1Loss = (coarse_out - img).abs().mean()
+                refine_L1Loss = (refine_out - img).abs().mean()
+                loss_r = (
+                    self.cfg.lambda_l1 * coarse_L1Loss
+                    + self.cfg.lambda_l1 * refine_L1Loss
+                )
+
+                # Get the deep semantic feature maps, and compute Perceptual Loss
+                img_feature_maps = self.perceptual_net(img)
+                refine_out_feature_maps = self.perceptual_net(refine_out)
+                loss_perceptual = F.l1_loss(refine_out_feature_map, img_feature_maps)
+
+                # Compute overall loss
+                whole_loss = (
+                    loss_r
+                    + self.cfg.lambda_perceptual * loss_perceptual
+                    + self.cfg.lambda_gan * loss_g
+                )
+
+                losses["loss_d"].update(loss_d.item(), B)
+                losses["loss_g"].update(loss_g.item(), B)
+                losses["loss_r"].update(loss_r.item(), B)
+                losses["whole_loss"].update(whole_loss.item(), B)
+
+                print("\nValidation Loss:")
+                print(
+                    f"Iteration {iteration}/{total_iterations}"
+                    + f" Discriminator Loss: {losses['loss_d'].avg},"
+                    + f" GAN Loss: {losses['loss_g'].avg},"
+                    + f" Reconstruction Loss: {losses['loss_r'].avg},"
+                    + f" Overall Generator Loss: {losses['whole_loss'].avg}"
+                )
+
+        writer.add_scaler(
+            "avg_val_discriminator_loss",
+            losses["loss_d"].avg,
+            total_iterations,
+        )
+        writer.add_scaler("avg_val_gan_loss", losses["loss_g"].avg, total_iterations)
+        writer.add_scaler(
+            "avg_val_reconstruction_loss",
+            losses["loss_r"].avg,
+            total_iterations,
+        )
+        writer.add_scaler(
+            "avg_val_generator_loss",
+            losses["whole_loss"].avg,
+            total_iterations,
+        )
 
         # Set model back to train state after validation
         self.generator.train()
         self.discriminator.train()
+
+        return losses
 
     def train(self):
         os.makedirs(self.cfg.CKPT_DIR, exist_ok=True)
@@ -318,7 +440,7 @@ class Trainer:
 
         torch.save(
             best_models_dict,
-            os.path.join(self.cfg.CKPT_DIR, "best_models.pth"),
+            os.path.join(self.cfg.CKPT_DIR, "best_models_final.pth"),
         )
 
-        print("Saved best generator and discriminator")
+        print("Saved final best generator and discriminator")
