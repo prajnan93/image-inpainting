@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.init as init
 
-from inpaint.core.modules import GatedConv2d, TransposeGatedConv2d
+from inpaint.core.modules import ContextualAttention, GatedConv2d, TransposeGatedConv2d
 
 
 # -----------------------------------------------
