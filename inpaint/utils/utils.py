@@ -6,36 +6,6 @@ import torch
 import torch.nn as nn
 import torchvision as tv
 
-from inpaint.core import discriminator, generator, modules
-
-
-# ----------------------------------------
-#                 Network
-# ----------------------------------------
-def create_generator(opt):
-    # Initialize the networks
-    generator = GatedGenerator(opt)
-    print("Generator is created!")
-    weights_init(generator, init_type=opt.init_type, init_gain=opt.init_gain)
-    print("Initialize generator with %s type" % opt.init_type)
-    return generator
-
-
-def create_discriminator(opt):
-    # Initialize the networks
-    discriminator = PatchDiscriminator(opt)
-    print("Discriminator is created!")
-    weights_init(discriminator, init_type=opt.init_type, init_gain=opt.init_gain)
-    print("Initialize discriminator with %s type" % opt.init_type)
-    return discriminator
-
-
-def create_perceptualnet():
-    # Get the first 15 layers of vgg16, which is conv3_3
-    perceptualnet = PerceptualNet()
-    print("Perceptual network is created!")
-    return perceptualnet
-
 
 # ----------------------------------------
 #             PATH processing
