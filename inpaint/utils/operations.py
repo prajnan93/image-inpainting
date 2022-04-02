@@ -1,3 +1,9 @@
+import os
+
+import cv2
+import numpy as np
+
+
 class AverageMeter:
     """
     Computes and stores the average and current value
@@ -69,12 +75,12 @@ def random_bbox(shape, margin, bbox_shape):
     Returns:
         tuple: (top, left, height, width)
     """
-    img_height = shape
-    img_width = shape
-    height = bbox_shape
-    width = bbox_shape
-    ver_margin = margin
-    hor_margin = margin
+    img_height = shape[0]
+    img_width = shape[1]
+    height = bbox_shape[0]
+    width = bbox_shape[1]
+    ver_margin = margin[0]
+    hor_margin = margin[1]
     maxt = img_height - ver_margin - height
     maxl = img_width - hor_margin - width
     t = np.random.randint(low=ver_margin, high=maxt)
@@ -84,7 +90,7 @@ def random_bbox(shape, margin, bbox_shape):
     return (t, l, h, w)
 
 
-def random_bbox_mask(shape, margin, bbox_shape, times):
+def random_bbox_mask(shape, margin=(10, 10), bbox_shape=(100, 100), times=15):
     """Generate mask tensor from bbox.
     Args:
         bbox: configuration tuple, (top, left, height, width)
@@ -97,8 +103,8 @@ def random_bbox_mask(shape, margin, bbox_shape, times):
     for i in range(times):
         bbox = random_bbox(shape, margin, bbox_shape)
         bboxs.append(bbox)
-    height = shape
-    width = shape
+    height = shape[0]
+    width = shape[1]
     mask = np.zeros((height, width), np.float32)
     for bbox in bboxs:
         h = int(bbox[2] * 0.1) + np.random.randint(int(bbox[2] * 0.2 + 1))
