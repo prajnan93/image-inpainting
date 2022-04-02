@@ -41,7 +41,7 @@ class Conv2dLayer(nn.Module):
         elif norm == "in":
             self.norm = nn.InstanceNorm2d(out_channels)
         elif norm == "ln":
-            self.norm = LayerNorm(out_channels)
+            self.norm = nn.LayerNorm(out_channels)
         elif norm == "none":
             self.norm = None
         else:
@@ -67,7 +67,7 @@ class Conv2dLayer(nn.Module):
 
         # Initialize the convolution layers
         if sn:
-            self.conv2d = SpectralNorm(
+            self.conv2d = nn.utils.spectral_norm(
                 nn.Conv2d(
                     in_channels,
                     out_channels,
@@ -177,7 +177,7 @@ class GatedConv2d(nn.Module):
         elif norm == "in":
             self.norm = nn.InstanceNorm2d(out_channels)
         elif norm == "ln":
-            self.norm = LayerNorm(out_channels)
+            self.norm = nn.LayerNorm(out_channels)
         elif norm == "none":
             self.norm = None
         else:
@@ -203,7 +203,7 @@ class GatedConv2d(nn.Module):
 
         # Initialize the convolution layers
         if sn:
-            self.conv2d = SpectralNorm(
+            self.conv2d = nn.utils.spectral_norm(
                 nn.Conv2d(
                     in_channels,
                     out_channels,
@@ -213,7 +213,7 @@ class GatedConv2d(nn.Module):
                     dilation=dilation,
                 )
             )
-            self.mask_conv2d = SpectralNorm(
+            self.mask_conv2d = nn.utils.spectral_norm(
                 nn.Conv2d(
                     in_channels,
                     out_channels,
