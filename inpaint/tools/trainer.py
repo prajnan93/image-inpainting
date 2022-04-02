@@ -422,7 +422,7 @@ class Trainer:
                     name_list = ["gt", "mask", "masked_img", "coarse_out", "refine_out"]
 
                     save_sample_png(
-                        sample_folder=sample_folder,
+                        sample_folder=self.cfg.SAMPLE_DIR,
                         sample_name="epoch%d" % (epoch + 1),
                         img_list=img_list,
                         name_list=name_list,
