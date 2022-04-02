@@ -35,9 +35,9 @@ EXCLUDES = ()
 # Important Paths
 PROJECT = os.path.abspath(os.path.dirname(__file__))
 
-if platform.system().lower() == "windows":
-    REQUIRE_PATH = "requirements.txt"
-else:
+REQUIRE_PATH = "requirements.txt"
+
+if platform.system().lower() != "windows" and platform.system().lower() != "linux":
     REQUIRE_PATH = "envMacm1pro.txt"
 
 
