@@ -421,7 +421,7 @@ class Trainer:
                     img_list = [img, mask, masked_img, coarse_out, refine_out]
                     name_list = ["gt", "mask", "masked_img", "coarse_out", "refine_out"]
 
-                    utils.save_sample_png(
+                    save_sample_png(
                         sample_folder=sample_folder,
                         sample_name="epoch%d" % (epoch + 1),
                         img_list=img_list,
