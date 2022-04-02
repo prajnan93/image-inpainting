@@ -1,19 +1,3 @@
-def random_ff_mask():
-    """
-    Free form mask
-
-    """
-    raise NotImplementedError()
-
-
-def random_bbox_mask():
-    """
-    Bounding box mask
-
-    """
-    raise NotImplementedError()
-
-
 class AverageMeter:
     """
     Computes and stores the average and current value
@@ -48,6 +32,82 @@ class AverageMeter:
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
+
+
+def random_ff_mask(shape, max_angle=10, max_len=40, max_width=50, times=15):
+    """Generate a random free form mask with configuration.
+    Args:
+        config: Config should have configuration including IMG_SHAPES,
+            VERTICAL_MARGIN, HEIGHT, HORIZONTAL_MARGIN, WIDTH.
+    Returns:
+        tuple: (top, left, height, width)
+    """
+    height = shape[0]
+    width = shape[1]
+    mask = np.zeros((height, width), np.float32)
+    times = np.random.randint(times - 5, times)
+    for i in range(times):
+        start_x = np.random.randint(width)
+        start_y = np.random.randint(height)
+        for j in range(1 + np.random.randint(5)):
+            angle = 0.01 + np.random.randint(max_angle)
+            if i % 2 == 0:
+                angle = 2 * 3.1415926 - angle
+            length = 10 + np.random.randint(max_len - 20, max_len)
+            brush_w = 5 + np.random.randint(max_width - 30, max_width)
+            end_x = (start_x + length * np.sin(angle)).astype(np.int32)
+            end_y = (start_y + length * np.cos(angle)).astype(np.int32)
+            cv2.line(mask, (start_y, start_x), (end_y, end_x), 1.0, brush_w)
+            start_x, start_y = end_x, end_y
+    return mask.reshape((1,) + mask.shape).astype(np.float32)
+
+
+def random_bbox(shape, margin, bbox_shape):
+    """Generate a random tlhw with configuration.
+    Args:
+        config: Config should have configuration including IMG_SHAPES, VERTICAL_MARGIN, HEIGHT, HORIZONTAL_MARGIN, WIDTH.
+    Returns:
+        tuple: (top, left, height, width)
+    """
+    img_height = shape
+    img_width = shape
+    height = bbox_shape
+    width = bbox_shape
+    ver_margin = margin
+    hor_margin = margin
+    maxt = img_height - ver_margin - height
+    maxl = img_width - hor_margin - width
+    t = np.random.randint(low=ver_margin, high=maxt)
+    l = np.random.randint(low=hor_margin, high=maxl)
+    h = height
+    w = width
+    return (t, l, h, w)
+
+
+def random_bbox_mask(shape, margin, bbox_shape, times):
+    """Generate mask tensor from bbox.
+    Args:
+        bbox: configuration tuple, (top, left, height, width)
+        config: Config should have configuration including IMG_SHAPES,
+            MAX_DELTA_HEIGHT, MAX_DELTA_WIDTH.
+    Returns:
+        tf.Tensor: output with shape [1, H, W, 1]
+    """
+    bboxs = []
+    for i in range(times):
+        bbox = random_bbox(shape, margin, bbox_shape)
+        bboxs.append(bbox)
+    height = shape
+    width = shape
+    mask = np.zeros((height, width), np.float32)
+    for bbox in bboxs:
+        h = int(bbox[2] * 0.1) + np.random.randint(int(bbox[2] * 0.2 + 1))
+        w = int(bbox[3] * 0.1) + np.random.randint(int(bbox[3] * 0.2) + 1)
+        mask[
+            (bbox[0] + h) : (bbox[0] + bbox[2] - h),
+            (bbox[1] + w) : (bbox[1] + bbox[3] - w),
+        ] = 1.0
+    return mask.reshape((1,) + mask.shape).astype(np.float32)
 
 
 ## for contextual attention

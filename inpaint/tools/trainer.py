@@ -6,7 +6,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 
-from inpaint.utils import AverageMeter, random_bbox, random_ff_mask, save_sample_png
+from inpaint.utils import (
+    AverageMeter,
+    random_bbox_mask,
+    random_ff_mask,
+    save_sample_png,
+)
 
 
 class Trainer:
@@ -89,7 +94,7 @@ class Trainer:
             generate_mask = random_ff_mask
         else:
             # generate bounding box mask
-            generate_mask = random_bbox
+            generate_mask = random_bbox_mask
 
         mask = torch.empty(B, 1, H, W).cuda()
         # set the same masks for each batch
