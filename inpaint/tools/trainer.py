@@ -156,17 +156,17 @@ class Trainer:
         loss_perceptual = F.l1_loss(refine_out_feature_map, img_feature_maps)
 
         # Compute overall loss
-        whole_loss = (
+        loss_total = (
             loss_r
             + self.cfg.lambda_perceptual * loss_perceptual
             + self.cfg.lambda_gan * loss_g
         )
 
         # Update generator weights
-        whole_loss.backward()
+        loss_total.backward()
         optimizer_g.step()
 
-        return (loss_g, loss_r, whole_loss)
+        return (loss_g, loss_r, loss_total)
 
     def _train_gan(self):
 
@@ -199,7 +199,7 @@ class Trainer:
                 "loss_g": AverageMeter(),
                 "loss_d": AverageMeter(),
                 "loss_r": AverageMeter(),
-                "whole_loss": AverageMeter(),
+                "loss_total": AverageMeter(),
             }
 
             for iteration, img in enumerate(self.train_loader):
@@ -218,7 +218,7 @@ class Trainer:
                 ) = self._train_discriminator(img, mask, optimizer_d)
 
                 # Train Generator
-                loss_g, loss_r, whole_loss = self._train_generator(
+                loss_g, loss_r, loss_total = self._train_generator(
                     img, mask, coarse_out, refine_out, refine_out_wholeimg, optimizer_g
                 )
 
@@ -226,7 +226,7 @@ class Trainer:
                 losses["loss_d"].update(loss_d.item(), B)
                 losses["loss_g"].update(loss_g.item(), B)
                 losses["loss_r"].update(loss_r.item(), B)
-                losses["whole_loss"].update(whole_loss.item(), B)
+                losses["loss_total"].update(loss_total.item(), B)
 
                 # Logging and Tensorboard Summary Writer
                 if iteration % self.cfg.LOG_INTERVAL == 0:
@@ -237,7 +237,7 @@ class Trainer:
                         + f" Discriminator Loss: {losses['loss_d'].avg},"
                         + f" GAN Loss: {losses['loss_g'].avg},"
                         + f" Reconstruction Loss: {losses['loss_r'].avg},"
-                        + f" Overall Generator Loss: {losses['whole_loss'].avg}"
+                        + f" Overall Generator Loss: {losses['loss_total'].avg}"
                     )
 
                     writer.add_scaler(
@@ -255,7 +255,7 @@ class Trainer:
                     )
                     writer.add_scaler(
                         "avg_train_generator_loss",
-                        losses["whole_loss"].avg,
+                        losses["loss_total"].avg,
                         total_iterations,
                     )
 
@@ -278,8 +278,8 @@ class Trainer:
                 save_best_models = True
                 print("New avg validation loss reconstruction!")
 
-            if val_losses["whole_loss"] < min_avg_val_loss_whole:
-                min_avg_val_loss_whole = val_losses["whole_loss"]
+            if val_losses["loss_total"] < min_avg_val_loss_whole:
+                min_avg_val_loss_whole = val_losses["loss_total"]
                 save_best_models = True
                 print("New avg validation loss overall!")
 
@@ -332,7 +332,7 @@ class Trainer:
             "loss_g": AverageMeter(),
             "loss_d": AverageMeter(),
             "loss_r": AverageMeter(),
-            "whole_loss": AverageMeter(),
+            "loss_total": AverageMeter(),
         }
 
         save_count = 0
@@ -388,7 +388,7 @@ class Trainer:
                 loss_perceptual = F.l1_loss(refine_out_feature_map, img_feature_maps)
 
                 # Compute overall loss
-                whole_loss = (
+                loss_total = (
                     loss_r
                     + self.cfg.lambda_perceptual * loss_perceptual
                     + self.cfg.lambda_gan * loss_g
@@ -397,7 +397,7 @@ class Trainer:
                 losses["loss_d"].update(loss_d.item(), B)
                 losses["loss_g"].update(loss_g.item(), B)
                 losses["loss_r"].update(loss_r.item(), B)
-                losses["whole_loss"].update(whole_loss.item(), B)
+                losses["loss_total"].update(loss_total.item(), B)
 
                 print("\nValidation Loss:")
                 print(
@@ -405,7 +405,7 @@ class Trainer:
                     + f" Discriminator Loss: {losses['loss_d'].avg},"
                     + f" GAN Loss: {losses['loss_g'].avg},"
                     + f" Reconstruction Loss: {losses['loss_r'].avg},"
-                    + f" Overall Generator Loss: {losses['whole_loss'].avg}"
+                    + f" Overall Generator Loss: {losses['loss_total'].avg}"
                 )
 
                 # Save intermediate result output
@@ -442,7 +442,7 @@ class Trainer:
         )
         writer.add_scaler(
             "avg_val_generator_loss",
-            losses["whole_loss"].avg,
+            losses["loss_total"].avg,
             total_iterations,
         )
 
