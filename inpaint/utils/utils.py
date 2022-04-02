@@ -65,7 +65,10 @@ def get_files(path):
     ret = []
     for root, dirs, files in os.walk(path):
         for filespath in files:
-            ret.append(os.path.join(root, filespath))
+            if filespath.lower().endswith(
+                (".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".gif")
+            ):
+                ret.append(os.path.join(root, filespath))
     return ret
 
 
