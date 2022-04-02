@@ -30,7 +30,7 @@ class ContextualAttention(nn.Module):
         fuse_k=3,
         softmax_scale=10,
         fuse=True,
-        use_cuda=True,
+        use_cuda=False,
         device_ids=0,
     ):
         super(ContextualAttention, self).__init__()
@@ -42,6 +42,8 @@ class ContextualAttention(nn.Module):
         self.fuse = fuse
         self.use_cuda = use_cuda
         self.device_ids = device_ids
+        if torch.cuda.is_available():
+            self.use_cuda = True
 
     def forward(self, f, b, mask=None):
         """
