@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 
-from inpaint.utils import AverageMeter, random_bbox, random_ff_mask
+from inpaint.utils import AverageMeter, random_bbox, random_ff_mask, save_sample_png
 
 
 class Trainer:
@@ -260,24 +260,28 @@ class Trainer:
                     )
 
             # Validate and save best model
-            val_losses = self._validate_gan(writer)
+            val_losses = self._validate_gan(epoch, writer)
 
             save_best_models = False
             if val_losses["loss_d"] < min_avg_val_loss_d:
                 min_avg_val_loss_d = val_losses["loss_d"]
                 save_best_models = True
+                print("New avg validation loss discriminator!")
 
             if val_losses["loss_g"] < min_avg_val_loss_g:
                 min_avg_val_loss_g = val_losses["loss_g"]
                 save_best_models = True
+                print("New avg validation loss generator!")
 
             if val_losses["loss_r"] < min_avg_val_loss_r:
                 min_avg_val_loss_r = val_losses["loss_r"]
                 save_best_models = True
+                print("New avg validation loss reconstruction!")
 
             if val_losses["whole_loss"] < min_avg_val_loss_whole:
                 min_avg_val_loss_whole = val_losses["whole_loss"]
                 save_best_models = True
+                print("New avg validation loss overall!")
 
             if save_best_models:
                 best_discriminator = deepcopy(self.discriminator)
@@ -293,7 +297,7 @@ class Trainer:
                     os.path.join(self.cfg.CKPT_DIR, "best_models.pth"),
                 )
 
-                print("Saved final best generator and discriminator")
+                print("Saved best generator and discriminator")
 
             # Adjust learning rate
             self._adjust_learning_rate(self.cfg.lr_d, optimizer_d, epoch + 1)
@@ -314,12 +318,11 @@ class Trainer:
                 ),
             )
 
-            # TODO: Save intermediate result output
             print("\n")
 
         return (best_generator, best_discriminator)
 
-    def _validate_gan(self, writer):
+    def _validate_gan(self, epoch, writer):
 
         # Set models to eval state for validation
         self.generator.eval()
@@ -331,6 +334,8 @@ class Trainer:
             "loss_r": AverageMeter(),
             "whole_loss": AverageMeter(),
         }
+
+        save_count = 0
 
         with torch.no_grad():
             for img in self.val_loader:
@@ -403,6 +408,27 @@ class Trainer:
                     + f" Overall Generator Loss: {losses['whole_loss'].avg}"
                 )
 
+                # Save intermediate result output
+                if (
+                    epoch % self.cfg.SAVE_SAMPLES_INTERVAL == 0
+                    and save_count < self.cfg.SAVE_SAMPLE_COUNT
+                ):
+                    save_count += 1
+
+                    masked_img = img * (1 - mask) + mask
+                    mask = torch.cat((mask, mask, mask), 1)
+
+                    img_list = [img, mask, masked_img, coarse_out, refine_out]
+                    name_list = ["gt", "mask", "masked_img", "coarse_out", "refine_out"]
+
+                    utils.save_sample_png(
+                        sample_folder=sample_folder,
+                        sample_name="epoch%d" % (epoch + 1),
+                        img_list=img_list,
+                        name_list=name_list,
+                        pixel_max_cnt=255,
+                    )
+
         writer.add_scaler(
             "avg_val_discriminator_loss",
             losses["loss_d"].avg,
@@ -430,6 +456,7 @@ class Trainer:
         os.makedirs(self.cfg.CKPT_DIR, exist_ok=True)
         os.makedirs(self.cfg.LOG_DIR, exist_ok=True)
         os.makedirs(self.cfg.IMG_DIR, exist_ok=True)
+        os.makedirs(self.cfg.SAMPLE_DIR, exist_ok=True)
 
         best_generator, best_discriminator = self._train_gan()
 
