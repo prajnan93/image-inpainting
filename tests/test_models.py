@@ -65,16 +65,17 @@ def create_cfg():
 
 cfg = create_cfg()
 
-# def test_Generator():
-#     generator = GatedGenerator(cfg)
-#     coarse_output, refine_output = generator(img, mask)
-#     assert coarse_output == img.shape
-#     assert refine_output == img.shape
-#     del generator
+
+def test_Generator():
+    generator = GatedGenerator(cfg)
+    coarse_output, refine_output = generator(img, mask)
+    # assert coarse_output == img.shape
+    assert refine_output == img.shape
+    del generator
 
 
-def test_Discriminator():
-    discriminator = PatchDiscriminator(cfg)
-    output = discriminator(img, mask)
-    assert output.shape == (1, 256, 8, 8)
-    del discriminator
+# def test_Discriminator():
+#     discriminator = PatchDiscriminator(cfg)
+#     output = discriminator(img, mask)
+#     assert output.shape == (1, 256, 8, 8)
+#     del discriminator
