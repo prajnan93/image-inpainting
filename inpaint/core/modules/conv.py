@@ -36,11 +36,11 @@ class Conv2dLayer(nn.Module):
             assert 0, "Unsupported padding type: {}".format(pad_type)
 
         # Initialize the normalization type
-        if norm == "bn":
+        if norm == "batch":
             self.norm = nn.BatchNorm2d(out_channels)
-        elif norm == "in":
+        elif norm == "instance":
             self.norm = nn.InstanceNorm2d(out_channels)
-        elif norm == "ln":
+        elif norm == "layer":
             self.norm = nn.LayerNorm(out_channels)
         elif norm == "none":
             self.norm = None
@@ -172,11 +172,11 @@ class GatedConv2d(nn.Module):
             assert 0, "Unsupported padding type: {}".format(pad_type)
 
         # Initialize the normalization type
-        if norm == "bn":
+        if norm == "batch":
             self.norm = nn.BatchNorm2d(out_channels)
-        elif norm == "in":
+        elif norm == "instance":
             self.norm = nn.InstanceNorm2d(out_channels)
-        elif norm == "ln":
+        elif norm == "layer":
             self.norm = nn.LayerNorm(out_channels)
         elif norm == "none":
             self.norm = None
