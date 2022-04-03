@@ -13,6 +13,9 @@ from inpaint.core.modules import ContextualAttention, GatedConv2d, TransposeGate
 class GatedGenerator(nn.Module):
     def __init__(self, cfg):
         super(GatedGenerator, self).__init__()
+        self.init_type = "kaiming"
+        self.init_gain = 0.02
+
         self.coarse = nn.Sequential(
             # encoder
             GatedConv2d(
@@ -57,7 +60,7 @@ class GatedGenerator(nn.Module):
             ),
             # Bottleneck
             GatedConv2d(
-                in_channles=cfg.latent_channels * 4,
+                in_channels=cfg.latent_channels * 4,
                 out_channels=cfg.latent_channels * 4,
                 kernel_size=3,
                 stride=1,
@@ -142,7 +145,7 @@ class GatedGenerator(nn.Module):
             ),
             # decoder
             TransposeGatedConv2d(
-                in_channnels=cfg.latent_channels * 4,
+                in_channels=cfg.latent_channels * 4,
                 out_channels=cfg.latent_channels * 2,
                 kernel_size=3,
                 stride=1,
@@ -152,7 +155,7 @@ class GatedGenerator(nn.Module):
                 norm=cfg.norm,
             ),
             GatedConv2d(
-                in_channnels=cfg.latent_channels * 2,
+                in_channels=cfg.latent_channels * 2,
                 out_channels=cfg.latent_channels * 2,
                 kernel_size=3,
                 stride=1,
@@ -162,7 +165,7 @@ class GatedGenerator(nn.Module):
                 norm=cfg.norm,
             ),
             TransposeGatedConv2d(
-                in_channnels=cfg.latent_channels * 2,
+                in_channels=cfg.latent_channels * 2,
                 out_channels=cfg.latent_channels,
                 kernel_size=3,
                 stride=1,
@@ -172,7 +175,7 @@ class GatedGenerator(nn.Module):
                 norm=cfg.norm,
             ),
             GatedConv2d(
-                in_channnels=cfg.latent_channels,
+                in_channels=cfg.latent_channels,
                 out_channels=cfg.latent_channels // 2,
                 kernel_size=3,
                 stride=1,
@@ -458,8 +461,38 @@ class GatedGenerator(nn.Module):
             nn.Tanh(),
         )
         self.context_attention = ContextualAttention(
-            ksize=3, stride=1, rate=2, fuse_k=3, softmax_scale=10, fuse=True
+            ksize=3,
+            stride=1,
+            rate=2,
+            fuse_k=3,
+            softmax_scale=10,
+            fuse=True,
+            use_cuda=cfg.use_cuda,
         )
+
+        self.apply(self._init_weights)
+
+    def _init_weights(self, m):
+        classname = m.__class__.__name__
+        if hasattr(m, "weight") and classname.find("Conv") != -1:
+            if self.init_type == "normal":
+                init.normal_(m.weight.data, 0.0, self.init_gain)
+            elif self.init_type == "xavier":
+                init.xavier_normal_(m.weight.data, gain=self.init_gain)
+            elif self.init_type == "kaiming":
+                init.kaiming_normal_(m.weight.data, a=0, mode="fan_in")
+            elif self.init_type == "orthogonal":
+                init.orthogonal_(m.weight.data, gain=self.init_gain)
+            else:
+                raise NotImplementedError(
+                    "initialization method [%s] is not implemented" % self.init_type
+                )
+        elif classname.find("BatchNorm2d") != -1:
+            init.normal_(m.weight.data, 1.0, 0.02)
+            init.constant_(m.bias.data, 0.0)
+        elif classname.find("Linear") != -1:
+            init.normal_(m.weight, 0, 0.01)
+            init.constant_(m.bias, 0)
 
     def forward(self, img, mask):
         # img: entire img
@@ -469,17 +502,25 @@ class GatedGenerator(nn.Module):
         first_in = torch.cat((first_masked_img, mask), dim=1)  # in: [B, 4, H, W]
         first_out = self.coarse(first_in)  # out: [B, 3, H, W]
         first_out = nn.functional.interpolate(first_out, (img.shape[2], img.shape[3]))
+
         # Refinement
         second_masked_img = img * (1 - mask) + first_out * mask
         second_in = torch.cat([second_masked_img, mask], dim=1)
         refine_conv = self.refine_conv(second_in)
+
         refine_atten = self.refine_atten_1(second_in)
         mask_s = nn.functional.interpolate(
             mask, (refine_atten.shape[2], refine_atten.shape[3])
         )
+
         refine_atten = self.context_attention(refine_atten, refine_atten, mask_s)
+
         refine_atten = self.refine_atten_2(refine_atten)
+
         second_out = torch.cat([refine_conv, refine_atten], dim=1)
+
         second_out = self.refine_combine(second_out)
+
         second_out = nn.functional.interpolate(second_out, (img.shape[2], img.shape[3]))
+
         return first_out, second_out

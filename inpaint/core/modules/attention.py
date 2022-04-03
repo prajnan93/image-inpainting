@@ -30,7 +30,7 @@ class ContextualAttention(nn.Module):
         fuse_k=3,
         softmax_scale=10,
         fuse=True,
-        use_cuda=True,
+        use_cuda=False,
         device_ids=0,
     ):
         super(ContextualAttention, self).__init__()
@@ -42,6 +42,7 @@ class ContextualAttention(nn.Module):
         self.fuse = fuse
         self.use_cuda = use_cuda
         self.device_ids = device_ids
+        self.use_cuda = use_cuda
 
     def forward(self, f, b, mask=None):
         """
@@ -60,6 +61,7 @@ class ContextualAttention(nn.Module):
         -------
             torch.tensor: output
         """
+
         # get shapes
         raw_int_fs = list(f.size())  # b*c*h*w
         raw_int_bs = list(b.size())  # b*c*h*w
@@ -74,6 +76,7 @@ class ContextualAttention(nn.Module):
             rates=[1, 1],
             padding="same",
         )  # [N, C*k*k, L]
+
         # raw_shape: [N, C, k, k, L] [4, 192, 4, 4, 1024]
         raw_w = raw_w.view(raw_int_bs[0], raw_int_bs[1], kernel, kernel, -1)
         raw_w = raw_w.permute(0, 4, 1, 2, 3)  # raw_shape: [N, L, C, k, k]
@@ -94,6 +97,7 @@ class ContextualAttention(nn.Module):
             rates=[1, 1],
             padding="same",
         )
+
         # w shape: [N, C, k, k, L]
         w = w.view(int_bs[0], int_bs[1], self.ksize, self.ksize, -1)
         w = w.permute(0, 4, 1, 2, 3)  # w shape: [N, L, C, k, k]
@@ -115,6 +119,7 @@ class ContextualAttention(nn.Module):
         m = m.view(int_ms[0], int_ms[1], self.ksize, self.ksize, -1)
         m = m.permute(0, 4, 1, 2, 3)  # m shape: [N, L, C, k, k]
         m = m[0]  # m shape: [L, C, k, k]
+
         # mm shape: [L, 1, 1, 1]
         mm = (reduce_mean(m, axis=[1, 2, 3], keepdim=True) == 0.0).to(torch.float32)
         mm = mm.permute(1, 0, 2, 3)  # mm shape: [1, L, 1, 1]
@@ -149,6 +154,7 @@ class ContextualAttention(nn.Module):
                 xi, [self.ksize, self.ksize], [1, 1], [1, 1]
             )  # xi: 1*c*H*W
             yi = F.conv2d(xi, wi_normed, stride=1)  # [1, L, H, W]
+
             # conv implementation for fuse scores to encourage large patches
             if self.fuse:
                 # make all of depth to spatial resolution
@@ -168,6 +174,7 @@ class ContextualAttention(nn.Module):
                 yi = F.conv2d(yi, fuse_weight, stride=1)
                 yi = yi.contiguous().view(1, int_bs[3], int_bs[2], int_fs[3], int_fs[2])
                 yi = yi.permute(0, 2, 1, 4, 3).contiguous()
+
             yi = yi.view(
                 1, int_bs[2] * int_bs[3], int_fs[2], int_fs[3]
             )  # (B=1, C=32*32, H=32, W=32)
@@ -182,6 +189,7 @@ class ContextualAttention(nn.Module):
                 # Normalize the offset value to match foreground dimension
                 times = float(int_fs[2] * int_fs[3]) / float(int_bs[2] * int_bs[3])
                 offset = ((offset + 1).float() * times - 1).to(torch.int64)
+
             offset = torch.cat(
                 [offset // int_fs[3], offset % int_fs[3]], dim=1
             )  # 1*2*H*W
@@ -198,4 +206,4 @@ class ContextualAttention(nn.Module):
         y = torch.cat(y, dim=0)  # back to the mini-batch
         y.contiguous().view(raw_int_fs)
 
-        return
+        return y
