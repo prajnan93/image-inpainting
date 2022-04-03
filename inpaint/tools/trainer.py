@@ -92,17 +92,29 @@ class Trainer:
 
         B, C, H, W = img.shape
 
-        if self.cfg.MASK_TYPE.lower() == "free_form":
-            # generate free form mask
-            generate_mask = random_ff_mask
-        else:
-            # generate bounding box mask
-            generate_mask = random_bbox_mask
-
         mask = torch.empty(B, 1, H, W).cuda()
+
         # set the same masks for each batch
         for i in range(opt.batch_size):
-            mask[i] = torch.from_numpy(generate_mask(shape=(H, W)).astype(np.float32))
+            if self.cfg.mask_type.lower() == "free_form":
+                mask[i] = torch.from_numpy(
+                    random_ff_mask(
+                        shape=(H, W),
+                        max_angle=self.cfg.max_angle,
+                        max_len=self.cfg.max_len,
+                        max_width=self.cfg.max_width,
+                        times=self.cfg.mask_num,
+                    ).astype(np.float32)
+                )
+            else:
+                mask[i] = torch.from_numpy(
+                    random_bbox_mask(
+                        shape=(H, W),
+                        margin=(self.cfg.margin, self.cfg.margin),
+                        bbox_shape=(self.cfg.bbox_shape, self.cfg.bbox_shape),
+                        times=self.cfg.mask_num,
+                    ).astype(np.float32)
+                )
 
         mask = mask.to(self.device)
         return mask
@@ -469,7 +481,6 @@ class Trainer:
     def train(self):
         os.makedirs(self.cfg.CKPT_DIR, exist_ok=True)
         os.makedirs(self.cfg.LOG_DIR, exist_ok=True)
-        os.makedirs(self.cfg.IMG_DIR, exist_ok=True)
         os.makedirs(self.cfg.SAMPLE_DIR, exist_ok=True)
 
         best_generator, best_discriminator = self._train_gan()
