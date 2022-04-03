@@ -25,7 +25,7 @@ class PatchDiscriminator(nn.Module):
             padding=3,
             pad_type=cfg.pad_type,
             activation=cfg.activation,
-            norm=cfg.norm,
+            norm=cfg.norm_d,
             sn=True,
         )
         self.block2 = Conv2dLayer(
@@ -36,7 +36,7 @@ class PatchDiscriminator(nn.Module):
             padding=1,
             pad_type=cfg.pad_type,
             activation=cfg.activation,
-            norm=cfg.norm,
+            norm=cfg.norm_d,
             sn=True,
         )
         self.block3 = Conv2dLayer(
@@ -47,7 +47,7 @@ class PatchDiscriminator(nn.Module):
             padding=1,
             pad_type=cfg.pad_type,
             activation=cfg.activation,
-            norm=cfg.norm,
+            norm=cfg.norm_d,
             sn=True,
         )
         self.block4 = Conv2dLayer(
@@ -58,7 +58,7 @@ class PatchDiscriminator(nn.Module):
             padding=1,
             pad_type=cfg.pad_type,
             activation=cfg.activation,
-            norm=cfg.norm,
+            norm=cfg.norm_d,
             sn=True,
         )
         self.block5 = Conv2dLayer(
@@ -69,7 +69,7 @@ class PatchDiscriminator(nn.Module):
             padding=1,
             pad_type=cfg.pad_type,
             activation=cfg.activation,
-            norm=cfg.norm,
+            norm=cfg.norm_d,
             sn=True,
         )
         self.block6 = Conv2dLayer(
