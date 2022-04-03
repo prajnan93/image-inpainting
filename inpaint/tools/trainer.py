@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 
+from inpaint.core.modules import PerceptualNet
 from inpaint.utils import (
     AverageMeter,
     random_bbox_mask,
@@ -28,7 +29,6 @@ class Trainer:
         cfg,
         discriminator,
         generator,
-        perceptual_net,
         train_loader,
         val_loader,
     ):
@@ -37,7 +37,7 @@ class Trainer:
 
         self.discriminator = discriminator
         self.generator = generator
-        self.perceptual_net = perceptual_net
+        self.perceptual_net = None
 
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -58,7 +58,10 @@ class Trainer:
     def _setup_models(self):
         self.discriminator = self.discriminator.to(self.device)
         self.generator = self.generator.to(self.device)
-        self.perceptual_net = self.perceptual_net.to(self.device)
+
+        if self.cfg.use_perceptualnet:
+            self.perceptual_net = PerceptualNet()
+            self.perceptual_net = self.perceptual_net.to(self.device)
 
     def _setup_trainer(self):
 
@@ -155,10 +158,12 @@ class Trainer:
         refine_L1Loss = (refine_out - img).abs().mean()
         loss_r = self.cfg.lambda_l1 * coarse_L1Loss + self.cfg.lambda_l1 * refine_L1Loss
 
-        # Get the deep semantic feature maps, and compute Perceptual Loss
-        img_feature_maps = self.perceptual_net(img)
-        refine_out_feature_maps = self.perceptual_net(refine_out)
-        loss_perceptual = F.l1_loss(refine_out_feature_map, img_feature_maps)
+        loss_perceptual = 0
+        if self.cfg.use_perceptualnet:
+            # Get the deep semantic feature maps, and compute Perceptual Loss
+            img_feature_maps = self.perceptual_net(img)
+            refine_out_feature_maps = self.perceptual_net(refine_out)
+            loss_perceptual = F.l1_loss(refine_out_feature_map, img_feature_maps)
 
         # Compute overall loss
         loss_total = (
@@ -387,10 +392,14 @@ class Trainer:
                     + self.cfg.lambda_l1 * refine_L1Loss
                 )
 
-                # Get the deep semantic feature maps, and compute Perceptual Loss
-                img_feature_maps = self.perceptual_net(img)
-                refine_out_feature_maps = self.perceptual_net(refine_out)
-                loss_perceptual = F.l1_loss(refine_out_feature_map, img_feature_maps)
+                loss_perceptual = 0
+                if self.cfg.use_perceptualnet:
+                    # Get the deep semantic feature maps, and compute Perceptual Loss
+                    img_feature_maps = self.perceptual_net(img)
+                    refine_out_feature_maps = self.perceptual_net(refine_out)
+                    loss_perceptual = F.l1_loss(
+                        refine_out_feature_map, img_feature_maps
+                    )
 
                 # Compute overall loss
                 loss_total = (
