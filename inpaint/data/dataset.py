@@ -1,36 +1,19 @@
-import math
-import os
-
-# import imgcrop
 import random
-from time import sleep
 
 import cv2
-import matplotlib.image as mpimg
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import torchvision
-from IPython.display import display  # to display images
-from PIL import Image, ImageDraw
 from torch.utils.data import Dataset
-from torchvision import transforms
 
-# import utils
-from inpaint.utils import *
-from inpaint.utils import utils
-
-ALLMASKTYPES = ["single_bbox", "bbox", "free_form"]
+from inpaint.utils import get_files
 
 SEED = 1
 
 
 class PlacesDataset(Dataset):
-    def __init__(self, cfg):
-        #         assert cfg.mask_type in ALLMASKTYPES
-
-        self.cfg = cfg
-        self.imglist = get_files(cfg.path_dir)  # utils.
+    def __init__(self, path_dir, batch_size):
+        self.batch_size = batch_size
+        self.imglist = get_files(path_dir)
 
     def __len__(self):
         return len(self.imglist)
@@ -40,8 +23,9 @@ class PlacesDataset(Dataset):
         global SEED
         img = cv2.imread(self.imglist[index])
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
         # set the different image size for each batch (data augmentation)
-        if index % self.cfg.batch_size == 0:
+        if index % self.batch_size == 0:
             SEED += 2
         img, height, width = self.random_crop(img, SEED)
 
@@ -50,8 +34,7 @@ class PlacesDataset(Dataset):
             .permute(2, 0, 1)
             .contiguous()
         )
-        #         mask = torch.from_numpy(mask.astype(np.float32)).contiguous()
-        #         mask = self.random_mask()[0]
+
         return img
 
     def random_crop(self, img, seed):
