@@ -1,6 +1,7 @@
 import os
 from copy import deepcopy
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -95,7 +96,7 @@ class Trainer:
         mask = torch.empty(B, 1, H, W).cuda()
 
         # set the same masks for each batch
-        for i in range(opt.batch_size):
+        for i in range(B):
             if self.cfg.mask_type.lower() == "free_form":
                 mask[i] = torch.from_numpy(
                     random_ff_mask(
@@ -120,11 +121,11 @@ class Trainer:
         return mask
 
     def _train_discriminator(self, real_img, mask, optimizer_d):
-        B, C, H, W = img.shape
+        B, C, H, W = real_img.shape
 
         # LSGAN vectors
-        valid = Tensor(np.ones((B, 1, H // 32, W // 32)))
-        zero = Tensor(np.zeros((B, 1, H // 32, W // 32)))
+        valid = torch.FloatTensor(np.ones((B, 1, H // 32, W // 32))).to(self.device)
+        zero = torch.FloatTensor(np.zeros((B, 1, H // 32, W // 32))).to(self.device)
 
         # Clear the Discriminator gradients
         optimizer_d.zero_grad()
