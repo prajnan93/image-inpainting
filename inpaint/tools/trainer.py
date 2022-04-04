@@ -216,7 +216,7 @@ class Trainer:
         for epoch in range(start_epoch, start_epoch + total_epochs):
 
             print(f"Epoch {epoch + 1} of {start_epoch + total_epochs}")
-            print(100 * "-")
+            print(200 * "-")
 
             losses = {
                 "loss_g": AverageMeter(),
@@ -286,23 +286,23 @@ class Trainer:
             val_losses = self._validate_gan(epoch, writer)
 
             save_best_models = False
-            if val_losses["loss_d"] < min_avg_val_loss_d:
-                min_avg_val_loss_d = val_losses["loss_d"]
+            if val_losses["loss_d"].avg < min_avg_val_loss_d:
+                min_avg_val_loss_d = val_losses["loss_d"].avg
                 save_best_models = True
                 print("New avg validation loss discriminator!")
 
-            if val_losses["loss_g"] < min_avg_val_loss_g:
-                min_avg_val_loss_g = val_losses["loss_g"]
+            if val_losses["loss_g"].avg < min_avg_val_loss_g:
+                min_avg_val_loss_g = val_losses["loss_g"].avg
                 save_best_models = True
                 print("New avg validation loss generator!")
 
-            if val_losses["loss_r"] < min_avg_val_loss_r:
-                min_avg_val_loss_r = val_losses["loss_r"]
+            if val_losses["loss_r"].avg < min_avg_val_loss_r:
+                min_avg_val_loss_r = val_losses["loss_r"].avg
                 save_best_models = True
                 print("New avg validation loss reconstruction!")
 
-            if val_losses["loss_total"] < min_avg_val_loss_whole:
-                min_avg_val_loss_whole = val_losses["loss_total"]
+            if val_losses["loss_total"].avg < min_avg_val_loss_whole:
+                min_avg_val_loss_whole = val_losses["loss_total"].avg
                 save_best_models = True
                 print("New avg validation loss overall!")
 
@@ -330,7 +330,8 @@ class Trainer:
             consolidated_save_dict = {
                 "generator_state_dict": self.generator.state_dict(),
                 "discriminator_state_dict": self.discriminator.state_dict(),
-                "optimizer": optimizer.state_dict(),
+                "optimizer_g": optimizer_g.state_dict(),
+                "optimizer_d": optimizer_d.state_dict(),
                 "epoch": epoch,
             }
             torch.save(
@@ -378,17 +379,17 @@ class Trainer:
                 )
 
                 # Generate fake pixel values for the given mask and real images
-                coarse_out, refine_out = self.generator(real_img, mask)
+                coarse_out, refine_out = self.generator(img, mask)
 
-                coarse_out_wholeimg = real_img * (1 - mask) + coarse_out * mask
-                refine_out_wholeimg = real_img * (1 - mask) + refine_out * mask
+                coarse_out_wholeimg = img * (1 - mask) + coarse_out * mask
+                refine_out_wholeimg = img * (1 - mask) + refine_out * mask
 
                 # Pass fake images through discriminator
                 fake_preds = self.discriminator(refine_out_wholeimg.detach(), mask)
                 fake_loss = -torch.mean(torch.min(zero, -valid - fake_preds))
 
                 # Pass real images through discriminator
-                real_preds = self.discriminator(real_img, mask)
+                real_preds = self.discriminator(img, mask)
                 real_loss = -torch.mean(torch.min(zero, -valid + real_preds))
 
                 # Compute overall loss
@@ -430,15 +431,6 @@ class Trainer:
                 losses["loss_r"].update(loss_r.item(), B)
                 losses["loss_total"].update(loss_total.item(), B)
 
-                print("\nValidation Loss:")
-                print(
-                    f"Iteration {iteration}/{total_iterations}"
-                    + f" Discriminator Loss: {losses['loss_d'].avg},"
-                    + f" GAN Loss: {losses['loss_g'].avg},"
-                    + f" Reconstruction Loss: {losses['loss_r'].avg},"
-                    + f" Overall Generator Loss: {losses['loss_total'].avg}"
-                )
-
                 # Save intermediate result output
                 if (
                     epoch % self.cfg.SAVE_SAMPLES_INTERVAL == 0
@@ -452,29 +444,39 @@ class Trainer:
                     img_list = [img, mask, masked_img, coarse_out, refine_out]
                     name_list = ["gt", "mask", "masked_img", "coarse_out", "refine_out"]
 
+                    sample_path = self.cfg.SAMPLE_DIR + f"/epoch_{epoch+1}"
+                    os.makedirs(sample_path, exist_ok=True)
                     save_sample_png(
-                        sample_folder=self.cfg.SAMPLE_DIR,
+                        sample_folder=sample_path,
                         sample_name="epoch%d" % (epoch + 1),
                         img_list=img_list,
                         name_list=name_list,
                         pixel_max_cnt=255,
                     )
 
+        print("\nValidation Loss:")
+        print(
+            f" Discriminator Loss: {losses['loss_d'].avg},"
+            + f" GAN Loss: {losses['loss_g'].avg},"
+            + f" Reconstruction Loss: {losses['loss_r'].avg},"
+            + f" Overall Generator Loss: {losses['loss_total'].avg}"
+        )
+
         writer.add_scalar(
             "avg_val_discriminator_loss",
             losses["loss_d"].avg,
-            total_iterations,
+            epoch + 1,
         )
-        writer.add_scalar("avg_val_gan_loss", losses["loss_g"].avg, total_iterations)
+        writer.add_scalar("avg_val_gan_loss", losses["loss_g"].avg, epoch + 1)
         writer.add_scalar(
             "avg_val_reconstruction_loss",
             losses["loss_r"].avg,
-            total_iterations,
+            epoch + 1,
         )
         writer.add_scalar(
             "avg_val_generator_loss",
             losses["loss_total"].avg,
-            total_iterations,
+            epoch + 1,
         )
 
         # Set model back to train state after validation
