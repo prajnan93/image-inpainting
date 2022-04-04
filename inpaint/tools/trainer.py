@@ -370,8 +370,12 @@ class Trainer:
 
                 # Discriminator validation
                 # LSGAN vectors
-                valid = Tensor(np.ones((B, 1, H // 32, W // 32)))
-                zero = Tensor(np.zeros((B, 1, H // 32, W // 32)))
+                valid = torch.FloatTensor(np.ones((B, 1, H // 32, W // 32))).to(
+                    self.device
+                )
+                zero = torch.FloatTensor(np.zeros((B, 1, H // 32, W // 32))).to(
+                    self.device
+                )
 
                 # Generate fake pixel values for the given mask and real images
                 coarse_out, refine_out = self.generator(real_img, mask)
