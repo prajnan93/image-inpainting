@@ -110,8 +110,8 @@ class Trainer:
                 mask[i] = torch.from_numpy(
                     random_bbox_mask(
                         shape=(H, W),
-                        margin=(self.cfg.margin, self.cfg.margin),
-                        bbox_shape=(self.cfg.bbox_shape, self.cfg.bbox_shape),
+                        margin=self.cfg.margin,
+                        bbox_shape=self.cfg.bbox_shape,
                         times=self.cfg.mask_num,
                     ).astype(np.float32)
                 )
