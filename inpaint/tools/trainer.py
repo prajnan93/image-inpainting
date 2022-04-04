@@ -161,7 +161,7 @@ class Trainer:
         optimizer_g.zero_grad()
 
         # Pass fake image to the discriminaton | Try to fool the discriminator
-        preds = self.discriminator(refine_out_wholeimg)
+        preds = self.discriminator(refine_out_wholeimg, mask)
 
         # GAN Loss
         loss_g = -torch.mean(preds)
@@ -176,7 +176,7 @@ class Trainer:
             # Get the deep semantic feature maps, and compute Perceptual Loss
             img_feature_maps = self.perceptual_net(img)
             refine_out_feature_maps = self.perceptual_net(refine_out)
-            loss_perceptual = F.l1_loss(refine_out_feature_map, img_feature_maps)
+            loss_perceptual = F.l1_loss(refine_out_feature_maps, img_feature_maps)
 
         # Compute overall loss
         loss_total = (
@@ -202,7 +202,7 @@ class Trainer:
         self.generator.train()
 
         # Setup Optimizers
-        optimizer_d, optimzer_g = self._setup_trainer()
+        optimizer_d, optimizer_g = self._setup_trainer()
 
         start_epoch = 0
         total_epochs = self.cfg.epochs
@@ -253,7 +253,7 @@ class Trainer:
 
                 # Logging and Tensorboard Summary Writer
                 if iteration % self.cfg.LOG_INTERVAL == 0:
-                    total_iterations = iteration + (epochs * len(self.train_loader))
+                    total_iterations = iteration + (epoch * len(self.train_loader))
 
                     print(
                         f"Iteration {iteration}/{total_iterations}"
@@ -263,20 +263,20 @@ class Trainer:
                         + f" Overall Generator Loss: {losses['loss_total'].avg}"
                     )
 
-                    writer.add_scaler(
+                    writer.add_scalar(
                         "avg_train_discriminator_loss",
                         losses["loss_d"].avg,
                         total_iterations,
                     )
-                    writer.add_scaler(
+                    writer.add_scalar(
                         "avg_train_gan_loss", losses["loss_g"].avg, total_iterations
                     )
-                    writer.add_scaler(
+                    writer.add_scalar(
                         "avg_train_reconstruction_loss",
                         losses["loss_r"].avg,
                         total_iterations,
                     )
-                    writer.add_scaler(
+                    writer.add_scalar(
                         "avg_train_generator_loss",
                         losses["loss_total"].avg,
                         total_iterations,
@@ -392,7 +392,7 @@ class Trainer:
 
                 # Generator validation
                 # Pass fake image to the discriminaton | Try to fool the discriminator
-                preds = self.discriminator(refine_out_wholeimg)
+                preds = self.discriminator(refine_out_wholeimg, mask)
 
                 # GAN Loss
                 loss_g = -torch.mean(preds)
@@ -411,7 +411,7 @@ class Trainer:
                     img_feature_maps = self.perceptual_net(img)
                     refine_out_feature_maps = self.perceptual_net(refine_out)
                     loss_perceptual = F.l1_loss(
-                        refine_out_feature_map, img_feature_maps
+                        refine_out_feature_maps, img_feature_maps
                     )
 
                 # Compute overall loss
@@ -456,18 +456,18 @@ class Trainer:
                         pixel_max_cnt=255,
                     )
 
-        writer.add_scaler(
+        writer.add_scalar(
             "avg_val_discriminator_loss",
             losses["loss_d"].avg,
             total_iterations,
         )
-        writer.add_scaler("avg_val_gan_loss", losses["loss_g"].avg, total_iterations)
-        writer.add_scaler(
+        writer.add_scalar("avg_val_gan_loss", losses["loss_g"].avg, total_iterations)
+        writer.add_scalar(
             "avg_val_reconstruction_loss",
             losses["loss_r"].avg,
             total_iterations,
         )
-        writer.add_scaler(
+        writer.add_scalar(
             "avg_val_generator_loss",
             losses["loss_total"].avg,
             total_iterations,
