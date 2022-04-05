@@ -26,7 +26,7 @@ class GatedGenerator(nn.Module):
                 padding=2,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels,
@@ -36,7 +36,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 2,
@@ -46,7 +46,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 2,
@@ -56,7 +56,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             # Bottleneck
             GatedConv2d(
@@ -67,7 +67,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -77,7 +77,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -88,7 +88,7 @@ class GatedGenerator(nn.Module):
                 dilation=2,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -99,7 +99,7 @@ class GatedGenerator(nn.Module):
                 dilation=4,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -110,7 +110,7 @@ class GatedGenerator(nn.Module):
                 dilation=8,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -121,7 +121,7 @@ class GatedGenerator(nn.Module):
                 dilation=16,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -131,7 +131,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -141,7 +141,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             # decoder
             TransposeGatedConv2d(
@@ -152,7 +152,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 2,
@@ -162,7 +162,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             TransposeGatedConv2d(
                 in_channels=cfg.latent_channels * 2,
@@ -172,7 +172,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels,
@@ -182,7 +182,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels // 2,
@@ -192,7 +192,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation="none",
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             nn.Tanh(),
         )
@@ -206,7 +206,7 @@ class GatedGenerator(nn.Module):
                 padding=2,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels,
@@ -216,7 +216,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels,
@@ -226,7 +226,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 2,
@@ -236,7 +236,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 2,
@@ -246,7 +246,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -256,7 +256,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -267,7 +267,7 @@ class GatedGenerator(nn.Module):
                 dilation=2,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -278,7 +278,7 @@ class GatedGenerator(nn.Module):
                 dilation=4,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -289,7 +289,7 @@ class GatedGenerator(nn.Module):
                 dilation=8,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -300,7 +300,7 @@ class GatedGenerator(nn.Module):
                 dilation=16,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
         )
         self.refine_atten_1 = nn.Sequential(
@@ -312,7 +312,7 @@ class GatedGenerator(nn.Module):
                 padding=2,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels,
@@ -322,7 +322,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels,
@@ -332,7 +332,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 2,
@@ -342,7 +342,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -352,7 +352,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -362,7 +362,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation="relu",
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
         )
         self.refine_atten_2 = nn.Sequential(
@@ -374,7 +374,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -384,7 +384,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
         )
         self.refine_combine = nn.Sequential(
@@ -396,7 +396,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -406,7 +406,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             TransposeGatedConv2d(
                 in_channels=cfg.latent_channels * 4,
@@ -416,7 +416,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels * 2,
@@ -426,7 +426,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             TransposeGatedConv2d(
                 in_channels=cfg.latent_channels * 2,
@@ -436,7 +436,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels,
@@ -446,7 +446,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation=cfg.activation,
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             GatedConv2d(
                 in_channels=cfg.latent_channels // 2,
@@ -456,7 +456,7 @@ class GatedGenerator(nn.Module):
                 padding=1,
                 pad_type=cfg.pad_type,
                 activation="none",
-                norm=cfg.norm,
+                norm=cfg.norm_g,
             ),
             nn.Tanh(),
         )
