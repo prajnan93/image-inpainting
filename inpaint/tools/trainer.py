@@ -343,7 +343,8 @@ class Trainer:
             )
 
             print("\n")
-
+        
+        writer.close()
         return (best_generator, best_discriminator)
 
     def _validate_gan(self, epoch, writer):
