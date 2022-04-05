@@ -1,4 +1,5 @@
 import argparse
+import warnings
 
 from torch.utils.data import DataLoader
 
@@ -6,6 +7,8 @@ from inpaint.core.discriminator import PatchDiscriminator
 from inpaint.core.generator import GatedGenerator
 from inpaint.data import PlacesDataset
 from inpaint.tools import Trainer
+
+warnings.filterwarnings("ignore")
 
 
 def main():
@@ -209,6 +212,8 @@ def main():
 
     print("Training!\n")
     trainer.train()
+
+    print("\nTraining Completed!\n")
 
 
 if __name__ == "__main__":

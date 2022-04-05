@@ -216,7 +216,7 @@ class Trainer:
         for epoch in range(start_epoch, start_epoch + total_epochs):
 
             print(f"Epoch {epoch + 1} of {start_epoch + total_epochs}")
-            print(200 * "-")
+            print(120 * "-")
 
             losses = {
                 "loss_g": AverageMeter(),
