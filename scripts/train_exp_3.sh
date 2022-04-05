@@ -48,7 +48,7 @@ python train.py --train_ds_dir './samples/Places365' \
                 --pad_type 'zero' \
                 --activation 'elu' \
                 --norm_d 'none' \
-                --norm_g 'none' \
+                --norm_g 'instance' \
                 --init_type 'kaiming' \
                 --init_gain 0.02 \
                 --use_perceptualnet

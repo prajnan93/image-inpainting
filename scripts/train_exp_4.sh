@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --time=08:00:00
-#SBATCH --job-name=inpaint_exp1
+#SBATCH --job-name=inpaint_exp2
 #SBATCH --partition=jiang
 #SBATCH --mem=24G
 #SBATCH --gres=gpu:a5000:1
@@ -13,11 +13,11 @@ module load cuda/11.3
 cd ..
 python train.py --train_ds_dir './samples/Places365' \
                 --val_ds_dir './samples/Places365' \
-                --CKPT_DIR '../../experiments/inpaint/ckpts/exp1' \
-                --LOG_DIR '../../experiments/inpaint/logs/exp1' \
-                --SAMPLE_DIR '../../experiments/inpaint/samples/exp1' \
+                --CKPT_DIR '../../experiments/inpaint/ckpts/exp2' \
+                --LOG_DIR '../../experiments/inpaint/logs/exp2' \
+                --SAMPLE_DIR '../../experiments/inpaint/samples/exp2' \
                 --crop_size 384 384 \
-                --mask_type 'free_form' \
+                --mask_type 'box' \
                 --mask_num 20 \
                 --max_angle 10 \
                 --max_len 40 \
@@ -48,7 +48,7 @@ python train.py --train_ds_dir './samples/Places365' \
                 --pad_type 'zero' \
                 --activation 'elu' \
                 --norm_d 'none' \
-                --norm_g 'none' \
+                --norm_g 'instance' \
                 --init_type 'kaiming' \
                 --init_gain 0.02 \
                 --use_perceptualnet
