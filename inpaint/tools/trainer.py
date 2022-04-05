@@ -441,7 +441,13 @@ class Trainer:
                     masked_img = img * (1 - mask) + mask
                     mask = torch.cat((mask, mask, mask), 1)
 
-                    img_list = [img, mask, masked_img, coarse_out, refine_out]
+                    img_list = [
+                        img,
+                        mask,
+                        masked_img,
+                        coarse_out_wholeimg,
+                        refine_out_wholeimg,
+                    ]
                     name_list = ["gt", "mask", "masked_img", "coarse_out", "refine_out"]
 
                     sample_path = self.cfg.SAMPLE_DIR + f"/epoch_{epoch+1}"
@@ -451,7 +457,6 @@ class Trainer:
                         sample_name="epoch%d" % (epoch + 1),
                         img_list=img_list,
                         name_list=name_list,
-                        pixel_max_cnt=255,
                     )
 
         print("\nValidation Loss:")
