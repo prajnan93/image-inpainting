@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --time=08:00:00
+#SBATCH --time=96:00:00
 #SBATCH --job-name=inpaint_exp1
 #SBATCH --partition=jiang
 #SBATCH --mem=24G

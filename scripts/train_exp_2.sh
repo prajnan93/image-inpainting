@@ -1,12 +1,12 @@
 #!/bin/bash
 
-#SBATCH --time=08:00:00
+#SBATCH --time=96:00:00
 #SBATCH --job-name=inpaint_exp2
 #SBATCH --partition=jiang
 #SBATCH --mem=24G
 #SBATCH --gres=gpu:a5000:1
 #SBATCH --cpus-per-task=4
-#SBATCH --output=../../outs/v11/exp_1.out
+#SBATCH --output=../../outs/v11/exp_2.out
 
 
 module load cuda/11.3
