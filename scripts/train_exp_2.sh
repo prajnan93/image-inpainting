@@ -1,29 +1,29 @@
 #!/bin/bash
 
-#SBATCH --time=96:00:00
+#SBATCH --time=120:00:00
 #SBATCH --job-name=inpaint_exp2
 #SBATCH --partition=jiang
 #SBATCH --mem=24G
 #SBATCH --gres=gpu:a5000:1
 #SBATCH --cpus-per-task=4
-#SBATCH --output=../../outs/v11/exp_2.out
+#SBATCH --output=../../../experiments/inpaint/outs/exp_2.out
 
 
 module load cuda/11.3
 cd ..
-python train.py --train_ds_dir './samples/Places365' \
-                --val_ds_dir './samples/Places365' \
+python train.py --train_ds_dir '../../../Datasets/Places365_Standard/data_large' \
+                --val_ds_dir '../../../Datasets/Places365_Standard/val_large' \
                 --CKPT_DIR '../../experiments/inpaint/ckpts/exp2' \
                 --LOG_DIR '../../experiments/inpaint/logs/exp2' \
                 --SAMPLE_DIR '../../experiments/inpaint/samples/exp2' \
-                --crop_size 384 384 \
+                --crop_size 256 256 \
                 --mask_type 'box' \
                 --mask_num 20 \
-                --max_angle 10 \
+                --max_angle 4 \
                 --max_len 40 \
-                --max_width 50 \
+                --max_width 10 \
                 --margin 10 10 \
-                --bbox_shape 100 100 \
+                --bbox_shape 30 30 \
                 --epochs 50 \
                 --batch_size 5 \
                 --num_workers 1 \
