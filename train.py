@@ -172,7 +172,7 @@ def main():
     train_ds = PlacesDataset(
         path_dir=cfg.train_ds_dir,
         transform_config=("to_tensor", "random_crop", "norm"),
-        crop_size=(384, 384),
+        crop_size=cfg.crop_size,
     )
     train_loader = DataLoader(
         train_ds,
@@ -186,7 +186,7 @@ def main():
     val_ds = PlacesDataset(
         path_dir=cfg.val_ds_dir,
         transform_config=("to_tensor", "center_crop", "norm"),
-        crop_size=(384, 384),
+        crop_size=cfg.crop_size,
     )
     val_loader = DataLoader(
         val_ds,

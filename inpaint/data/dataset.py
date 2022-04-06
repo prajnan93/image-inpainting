@@ -51,6 +51,7 @@ class PlacesDataset(BaseDataset):
         transform_config=("to_tensor", "random_crop", "norm"),
         crop_size=(256, 256),
     ):
+        self.crop_size = crop_size
         self.imglist = get_files(path_dir)
         self.transform_initialize(crop_size=crop_size, config=transform_config)
 
@@ -61,6 +62,12 @@ class PlacesDataset(BaseDataset):
 
         img = cv2.imread(self.imglist[index])
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        if img.shape[0] < self.crop_size[0] or img.shape[1] < self.crop_size[1]:
+            scale_percent = 220  # percent of original size
+            width = int(img.shape[1] * scale_percent / 100)
+            height = int(img.shape[0] * scale_percent / 100)
+            img = cv2.resize(img, (width, height), interpolation=cv2.INTER_AREA)
 
         img = self.transforms_fun(img)
         return img
