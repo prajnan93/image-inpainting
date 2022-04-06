@@ -455,7 +455,7 @@ class Trainer:
                     os.makedirs(sample_path, exist_ok=True)
                     save_sample_png(
                         sample_folder=sample_path,
-                        sample_name="epoch%d" % (epoch + 1),
+                        sample_name="%d" % (save_count),
                         img_list=img_list,
                         name_list=name_list,
                     )
