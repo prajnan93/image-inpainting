@@ -11,7 +11,7 @@
 
 module load cuda/11.3
 cd ..
-python train.py --train_ds_dir '../../../Datasets/Places365_Standard/data_large' \
+python train.py --train_ds_dir '../../../Datasets/Places365_Standard/train_large' \
                 --val_ds_dir '../../../Datasets/Places365_Standard/val_large' \
                 --CKPT_DIR '../../experiments/inpaint/ckpts/exp2' \
                 --LOG_DIR '../../experiments/inpaint/logs/exp2' \

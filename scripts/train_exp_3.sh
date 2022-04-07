@@ -11,11 +11,11 @@
 
 module load cuda/11.3
 cd ..
-python train.py --train_ds_dir '../../../Datasets/Places365_Standard/data_large' \
+python train.py --train_ds_dir '../../../Datasets/Places365_Standard/train_large' \
                 --val_ds_dir '../../../Datasets/Places365_Standard/val_large' \
-                --CKPT_DIR '../../experiments/inpaint/ckpts/exp1' \
-                --LOG_DIR '../../experiments/inpaint/logs/exp1' \
-                --SAMPLE_DIR '../../experiments/inpaint/samples/exp1' \
+                --CKPT_DIR '../../experiments/inpaint/ckpts/exp3' \
+                --LOG_DIR '../../experiments/inpaint/logs/exp3' \
+                --SAMPLE_DIR '../../experiments/inpaint/samples/exp3' \
                 --crop_size 256 256 \
                 --mask_type 'free_form' \
                 --mask_num 20 \
