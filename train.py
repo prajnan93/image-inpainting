@@ -80,6 +80,15 @@ def main():
         "--epochs", type=int, default=10, help="Number of epochs to train for"
     )
     parser.add_argument(
+        "--steps_per_epoch",
+        type=int,
+        default=10000,
+        help="Number of steps per epochs to train for",
+    )
+    parser.add_argument(
+        "--val_steps", type=int, default=1000, help="Number of validation steps"
+    )
+    parser.add_argument(
         "--batch_size", type=int, default=10, help="Training batch size"
     )
     parser.add_argument("--lr_g", type=float, default=2e-4, help="Adam: learning rate")

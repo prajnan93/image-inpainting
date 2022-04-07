@@ -11,7 +11,7 @@
 
 module load cuda/11.3
 cd ..
-python train.py --train_ds_dir '../../../Datasets/Places365_Standard/train_large' \
+python train.py --train_ds_dir '../../../Datasets/Places365_Standard/data_large' \
                 --val_ds_dir '../../../Datasets/Places365_Standard/val_large' \
                 --CKPT_DIR '../../experiments/inpaint/ckpts/exp4' \
                 --LOG_DIR '../../experiments/inpaint/logs/exp4' \
@@ -24,7 +24,9 @@ python train.py --train_ds_dir '../../../Datasets/Places365_Standard/train_large
                 --max_width 10 \
                 --margin 10 10 \
                 --bbox_shape 30 30 \
-                --epochs 50 \
+                --epochs 100 \
+                --steps_per_epoch 1000 \
+                --val_steps 1000 \
                 --batch_size 5 \
                 --num_workers 1 \
                 --device_id 0 \

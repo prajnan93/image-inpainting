@@ -61,13 +61,14 @@ class PlacesDataset(BaseDataset):
     def __getitem__(self, index):
 
         img = cv2.imread(self.imglist[index])
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         if img.shape[0] < self.crop_size[0] or img.shape[1] < self.crop_size[1]:
-            scale_percent = 220  # percent of original size
+            scale_percent = 150  # percent of original size
             width = int(img.shape[1] * scale_percent / 100)
             height = int(img.shape[0] * scale_percent / 100)
             img = cv2.resize(img, (width, height), interpolation=cv2.INTER_AREA)
+
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         img = self.transforms_fun(img)
         return img

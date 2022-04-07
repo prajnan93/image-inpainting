@@ -201,6 +201,8 @@ class Trainer:
         self.discriminator.train()
         self.generator.train()
 
+        train_iter = iter(self.train_loader)
+
         # Setup Optimizers
         optimizer_d, optimizer_g = self._setup_trainer()
 
@@ -225,7 +227,13 @@ class Trainer:
                 "loss_total": AverageMeter(),
             }
 
-            for iteration, img in enumerate(self.train_loader):
+            for step in range(self.cfg.steps_per_epoch):
+
+                try:
+                    img = next(train_iter)
+                except:
+                    train_iter = iter(self.train_loader)
+                    img = next(train_iter)
 
                 img = img.to(self.device)
                 B, C, H, W = img.shape
@@ -252,34 +260,34 @@ class Trainer:
                 losses["loss_total"].update(loss_total.item(), B)
 
                 # Logging and Tensorboard Summary Writer
-                if iteration % self.cfg.LOG_INTERVAL == 0:
-                    total_iterations = iteration + (epoch * len(self.train_loader))
+                if step % self.cfg.LOG_INTERVAL == 0:
+                    total_steps = step + (epoch * self.cfg.steps_per_epoch)
 
                     print(
-                        f"Iteration {iteration}/{total_iterations}"
-                        + f" Discriminator Loss: {losses['loss_d'].avg},"
-                        + f" GAN Loss: {losses['loss_g'].avg},"
-                        + f" Reconstruction Loss: {losses['loss_r'].avg},"
-                        + f" Overall Generator Loss: {losses['loss_total'].avg}"
+                        f"Step {step}/{total_steps}"
+                        + f" Discriminator Loss: {'%.5f' % losses['loss_d'].avg},"
+                        + f" GAN Loss: {'%.5f' % losses['loss_g'].avg},"
+                        + f" Reconstruction Loss: {'%.5f' % losses['loss_r'].avg},"
+                        + f" Overall Generator Loss: {'%.5f' % losses['loss_total'].avg}"
                     )
 
                     writer.add_scalar(
                         "avg_train_discriminator_loss",
                         losses["loss_d"].avg,
-                        total_iterations,
+                        total_steps,
                     )
                     writer.add_scalar(
-                        "avg_train_gan_loss", losses["loss_g"].avg, total_iterations
+                        "avg_train_gan_loss", losses["loss_g"].avg, total_steps
                     )
                     writer.add_scalar(
                         "avg_train_reconstruction_loss",
                         losses["loss_r"].avg,
-                        total_iterations,
+                        total_steps,
                     )
                     writer.add_scalar(
                         "avg_train_generator_loss",
                         losses["loss_total"].avg,
-                        total_iterations,
+                        total_steps,
                     )
 
             # Validate and save best model
@@ -343,7 +351,7 @@ class Trainer:
             )
 
             print("\n")
-        
+
         writer.close()
         return (best_generator, best_discriminator)
 
@@ -362,8 +370,16 @@ class Trainer:
 
         save_count = 0
 
+        val_iter = iter(self.val_loader)
+
         with torch.no_grad():
-            for img in self.val_loader:
+            for step in range(self.cfg.val_steps):
+
+                try:
+                    img = next(val_iter)
+                except:
+                    val_iter = iter(self.val_loader)
+                    img = next(val_iter)
 
                 img = img.to(self.device)
                 B, C, H, W = img.shape
@@ -462,10 +478,10 @@ class Trainer:
 
         print("\nValidation Loss:")
         print(
-            f" Discriminator Loss: {losses['loss_d'].avg},"
-            + f" GAN Loss: {losses['loss_g'].avg},"
-            + f" Reconstruction Loss: {losses['loss_r'].avg},"
-            + f" Overall Generator Loss: {losses['loss_total'].avg}"
+            f" Discriminator Loss: {'%.5f' % losses['loss_d'].avg},"
+            + f" GAN Loss: {'%.5f' % losses['loss_g'].avg},"
+            + f" Reconstruction Loss: {'%.5f' % losses['loss_r'].avg},"
+            + f" Overall Generator Loss: {'%.5f' % losses['loss_total'].avg}"
         )
 
         writer.add_scalar(
@@ -496,6 +512,7 @@ class Trainer:
         os.makedirs(self.cfg.LOG_DIR, exist_ok=True)
         os.makedirs(self.cfg.SAMPLE_DIR, exist_ok=True)
 
+        print("Training started!\n")
         best_generator, best_discriminator = self._train_gan()
 
         best_models_dict = {
