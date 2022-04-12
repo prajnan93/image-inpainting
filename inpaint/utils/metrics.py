@@ -1,4 +1,6 @@
+import numpy as np
 import torch
+from skimage.metrics import structural_similarity
 from skimage.metrics import structural_similarity as ssim
 
 
@@ -14,5 +16,5 @@ def ssim(pred, target):
     target = target.clone().data.permute(0, 2, 3, 1).cpu().numpy()
     target = target[0]
     pred = pred[0]
-    ssim = ssim(target, pred, multichannel=True)
+    ssim = structural_similarity(target, pred, multichannel=True)
     return ssim
