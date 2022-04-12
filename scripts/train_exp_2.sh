@@ -53,4 +53,5 @@ python train.py --train_ds_dir '../../../Datasets/Places365_Standard/data_large'
                 --norm_g 'none' \
                 --init_type 'kaiming' \
                 --init_gain 0.02 \
-                --use_perceptualnet
+                --use_perceptualnet \
+                --sn_enable
