@@ -52,4 +52,5 @@ python train.py --train_ds_dir '../../../Datasets/Places365_Standard/data_large'
                 --norm_d 'none' \
                 --norm_g 'batch' \
                 --init_type 'kaiming' \
-                --init_gain 0.02 
+                --init_gain 0.02 \
+                --sn_enable

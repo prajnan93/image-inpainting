@@ -1,4 +1,5 @@
 import os
+import random
 from copy import deepcopy
 
 import numpy as np
@@ -107,7 +108,7 @@ class Trainer:
                         times=self.cfg.mask_num,
                     ).astype(np.float32)
                 )
-            else:
+            elif self.cfg.mask_type.lower() == "box":
                 mask[i] = torch.from_numpy(
                     random_bbox_mask(
                         shape=(H, W),
@@ -116,6 +117,30 @@ class Trainer:
                         times=self.cfg.mask_num,
                     ).astype(np.float32)
                 )
+            elif self.cfg.mask_type.lower() == "all_masks":
+                # Random flip to choose free form or box mask randomly
+                flip = self.flipCoin()
+                if flip == True:
+                    # Free form
+                    mask[i] = torch.from_numpy(
+                        random_ff_mask(
+                            shape=(H, W),
+                            max_angle=self.cfg.max_angle,
+                            max_len=self.cfg.max_len,
+                            max_width=self.cfg.max_width,
+                            times=self.cfg.mask_num,
+                        ).astype(np.float32)
+                    )
+                else:
+                    # Box
+                    mask[i] = torch.from_numpy(
+                        random_bbox_mask(
+                            shape=(H, W),
+                            margin=self.cfg.margin,
+                            bbox_shape=self.cfg.bbox_shape,
+                            times=self.cfg.mask_num,
+                        ).astype(np.float32)
+                    )
 
         mask = mask.to(self.device)
         return mask
@@ -354,6 +379,10 @@ class Trainer:
 
         writer.close()
         return (best_generator, best_discriminator)
+
+    def flipCoin(self):
+        f = random.random()
+        return True if f < 0.5 else False
 
     def _validate_gan(self, epoch, writer):
 
