@@ -174,6 +174,9 @@ def main():
     parser.add_argument(
         "--use_perceptualnet", action="store_true", help="Enable scheduler"
     )
+    parser.add_argument(
+        "--sn_enable", action="store_true", help="Enable spectral normalisation"
+    )
 
     cfg = parser.parse_args()
 
