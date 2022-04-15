@@ -176,7 +176,10 @@ def main():
         "--use_perceptualnet", action="store_true", help="Add pretrained perceptual net"
     )
     parser.add_argument(
-        "--sn_enable", action="store_true", help="Enable spectral normalisation"
+        "--sn_enable", action="store_true", help="Enable spectral normalisation in the Discriminator network"
+    )
+    parser.add_argument(
+        "--add_context_attention", action="store_true", help="Enable Contextual Attention in the Generator network"
     )
 
     cfg = parser.parse_args()
