@@ -1,7 +1,5 @@
-import argparse
 import os
 import random
-import sys
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
@@ -16,9 +14,6 @@ from inpaint.core.generator import GatedGenerator
 from inpaint.data import PlacesDataset
 from inpaint.utils import random_bbox_mask, random_ff_mask
 from inpaint.utils.metrics import psnr, ssim
-
-sys.argv = [""]
-del sys
 
 
 def flipCoin():
