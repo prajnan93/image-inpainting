@@ -24,6 +24,8 @@ args["--norm_g"] = "none"
 args["--init_type"] = "kaiming"
 args["--init_gain"] = 0.02
 args["--use_cuda"] = False
+args["--sn_enable"] = True
+args["--add_context_attention"] = True
 
 img = torch.randn(1, 3, 256, 256)
 mask = random_ff_mask(shape=(256, 256)).astype(np.float32)
@@ -43,7 +45,18 @@ def create_cfg():
 cfg = create_cfg()
 
 
-def test_Generator():
+def test_Generator_with_ContextualAttention():
+    generator = GatedGenerator(cfg)
+    coarse_output, refine_output = generator(img, mask)
+    assert coarse_output.shape == img.shape
+    assert refine_output.shape == img.shape
+    del generator
+
+
+def test_Generator_without_ContextualAttention():
+
+    cfg.add_context_attention = False
+    
     generator = GatedGenerator(cfg)
     coarse_output, refine_output = generator(img, mask)
     assert coarse_output.shape == img.shape
