@@ -1,3 +1,5 @@
+# Remove unused import
+
 import os
 import random
 from copy import deepcopy
@@ -22,6 +24,8 @@ def flipCoin():
 
 
 class Evaluate:
+    # Evaluate args: generator and val_loader
+    # Single instance of GatedGenerator should be be initialized in examples/evaluate.ipynb
     def __init__(self, cfg, val_loader):
         self.cfg = cfg
         self.val_loader = val_loader
@@ -111,6 +115,8 @@ class Evaluate:
                 psnr_avgs.append(np.array(psnr_vals).mean())
                 ssim_avgs.append(np.array(ssim_vals).mean())
 
+        # Evaluate should simplt return the avg psnr and avg_ssim
+        # Let's not plot any figures.
         fig = plt.figure()
         plt.plot(psnr_avgs)
         fig.suptitle("PSNR", fontsize=20)
