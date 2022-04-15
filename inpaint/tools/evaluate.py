@@ -116,7 +116,7 @@ class Evaluate:
         fig.suptitle("PSNR", fontsize=20)
         plt.xlabel("epochs", fontsize=18)
         plt.ylabel("PSNR", fontsize=16)
-        fig.savefig("Network psnr.jpg")
+        # fig.savefig("Network psnr.jpg")
 
         fig2 = plt.figure()
         plt.plot(ssim_avgs)
