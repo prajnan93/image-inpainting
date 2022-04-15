@@ -10,7 +10,6 @@ from inpaint.tools import Trainer
 
 warnings.filterwarnings("ignore")
 
-
 def main():
     parser = argparse.ArgumentParser(description="Train a GAN model for inpainting")
 
@@ -18,11 +17,13 @@ def main():
     parser.add_argument(
         "--train_ds_dir",
         type=str,
+        required=True,
         help="Path of root directory for the training dataset",
     )
     parser.add_argument(
         "--val_ds_dir",
         type=str,
+        required=True,
         help="Path of root directory for the training dataset",
     )
     parser.add_argument(
@@ -56,7 +57,7 @@ def main():
         "--mask_type",
         type=str,
         required=True,
-        help="free_form or box mask type",
+        help="free_form, box_mask or all_mask type",
     )
     parser.add_argument("--mask_num", type=int, default=20, help="Number of masks")
     parser.add_argument(
@@ -172,13 +173,18 @@ def main():
         "--init_gain", type=float, default=0.02, help="the initialization gain"
     )
     parser.add_argument(
-        "--use_perceptualnet", action="store_true", help="Enable scheduler"
+        "--use_perceptualnet", action="store_true", help="Add pretrained perceptual net"
     )
     parser.add_argument(
         "--sn_enable", action="store_true", help="Enable spectral normalisation"
     )
 
     cfg = parser.parse_args()
+    print("\nConfiguration:")
+    print("-"*80)
+    print(cfg)
+    print("-"*80)
+    print("\n")
 
     # Initialize Train and Validation loader
     train_ds = PlacesDataset(
