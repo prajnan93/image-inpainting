@@ -2,20 +2,23 @@
 
 import os
 import random
-from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
 
 from inpaint.core.generator import GatedGenerator
-from inpaint.data import PlacesDataset
+
+# from inpaint.data import PlacesDataset
 from inpaint.utils import random_bbox_mask, random_ff_mask
 from inpaint.utils.metrics import psnr, ssim
+
+# from copy import deepcopy
+
+# import torch.nn as nn
+# import torch.nn.functional as F
+# from torch.utils.data import DataLoader
+# from torch.utils.tensorboard import SummaryWriter
 
 
 def flipCoin():
@@ -64,13 +67,6 @@ class Evaluate:
 
     def evaluate(self, checkpoints_dir):
         # Set models to eval state for validation
-        checkpointslist = os.listdir(checkpoints_dir)
-
-        for i in range(len(checkpointslist)):
-            checkpointslist[i] = checkpoints_dir + "/" + checkpointslist[i]
-
-        # print(checkpointslist)
-        generator = GatedGenerator(self.cfg)
 
         val_iter = iter(self.val_loader)
 
