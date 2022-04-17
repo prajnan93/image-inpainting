@@ -7,8 +7,7 @@ import random
 import numpy as np
 import torch
 
-from inpaint.utils import random_bbox_mask, random_ff_mask, psnr, ssim
-
+from inpaint.utils import psnr, random_bbox_mask, random_ff_mask, ssim
 
 
 def flipCoin():
@@ -19,17 +18,19 @@ def flipCoin():
 class Evaluate:
     # Evaluate args: generator and val_loader
     # Single instance of GatedGenerator should be be initialized in examples/evaluate.ipynb
-    def __init__(self, generator,val_loader,val_steps):
-        #remove cfg
+    def __init__(self, generator, val_loader, val_steps):
+        # remove cfg
         self.generator = generator
         self.val_loader = val_loader
-        # self.device = torch.device(cfg.device_id)
+        #chage it cuda on windows
+        self.device = torch.device('cpu')
+
         self.val_steps = val_steps
 
     def _create_mask(self, img):
         flip = flipCoin()
         B, C, H, W = img.shape
-        mask = torch.empty(B, 1, H, W).cuda()
+        mask = torch.empty(B, 1, H, W) #.cuda()
         # set the same masks for each batch
         for i in range(B):
             if flip == True:
@@ -100,9 +101,9 @@ class Evaluate:
                 ssim_val = ssim(refine_out_wholeimg, img)
                 psnr_vals.append(psnr_val)
                 ssim_vals.append(ssim_val)
-
-        return psnr_vals.mean(), ssim_vals.mean()
-
+            psnr_vals_mean = sum(psnr_vals) / len(psnr_vals)
+            ssim_vals_mean = sum(ssim_vals) / len(ssim_vals)
+        return psnr_vals_mean, ssim_vals_mean
 
         # Evaluate should simplt return the avg psnr and avg_ssim
         # Let's not plot any figures.
