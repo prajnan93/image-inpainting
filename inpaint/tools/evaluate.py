@@ -3,22 +3,12 @@
 import os
 import random
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from inpaint.core.generator import GatedGenerator
+from inpaint.utils import random_bbox_mask, random_ff_mask, psnr, ssim
 
-# from inpaint.data import PlacesDataset
-from inpaint.utils import random_bbox_mask, random_ff_mask
-from inpaint.utils.metrics import psnr, ssim
-
-# from copy import deepcopy
-
-# import torch.nn as nn
-# import torch.nn.functional as F
-# from torch.utils.data import DataLoader
-# from torch.utils.tensorboard import SummaryWriter
 
 
 def flipCoin():
@@ -29,10 +19,12 @@ def flipCoin():
 class Evaluate:
     # Evaluate args: generator and val_loader
     # Single instance of GatedGenerator should be be initialized in examples/evaluate.ipynb
-    def __init__(self, cfg, val_loader):
-        self.cfg = cfg
+    def __init__(self, generator,val_loader,val_steps):
+        #remove cfg
+        self.generator = generator
         self.val_loader = val_loader
-        self.device = torch.device(cfg.device_id)
+        # self.device = torch.device(cfg.device_id)
+        self.val_steps = val_steps
 
     def _create_mask(self, img):
         flip = flipCoin()
@@ -65,7 +57,7 @@ class Evaluate:
         mask = mask.to(self.device)
         return mask
 
-    def evaluate(self, checkpoints_dir):
+    def evaluate(self):
         # Set models to eval state for validation
 
         val_iter = iter(self.val_loader)
@@ -74,55 +66,56 @@ class Evaluate:
         psnr_avgs = []
 
         with torch.no_grad():
-            for gen in checkpointslist:
-                ssim_vals = []
-                psnr_vals = []
+            self.generator.eval()
+            # for gen in checkpointslist:
+            ssim_vals = []
+            psnr_vals = []
 
-                models = torch.load(gen)
-                gen_model_state_dict = models["generator_state_dict"]
-                generator.load_state_dict(gen_model_state_dict)
+            # models = torch.load(gen)
+            # gen_model_state_dict = models["generator_state_dict"]
+            # generator.load_state_dict(gen_model_state_dict)
+            #
+            # generator.to(self.device)
+            # generator.eval()
 
-                generator.to(self.device)
-                generator.eval()
+            for step in range(self.val_steps):
+                try:
+                    img = next(val_iter)
+                except:
+                    val_iter = iter(self.val_loader)
+                    img = next(val_iter)
 
-                for step in range(self.cfg.val_steps):
-                    try:
-                        img = next(val_iter)
-                    except:
-                        val_iter = iter(self.val_loader)
-                        img = next(val_iter)
+                img = img.to(self.device)
+                B, C, H, W = img.shape
 
-                    img = img.to(self.device)
-                    B, C, H, W = img.shape
+                mask = self._create_mask(img)
 
-                    mask = self._create_mask(img)
+                # Generate fake pixel values for the given mask and real images
+                coarse_out, refine_out = self.generator(img, mask)
 
-                    # Generate fake pixel values for the given mask and real images
-                    coarse_out, refine_out = generator(img, mask)
+                coarse_out_wholeimg = img * (1 - mask) + coarse_out * mask
+                refine_out_wholeimg = img * (1 - mask) + refine_out * mask
 
-                    coarse_out_wholeimg = img * (1 - mask) + coarse_out * mask
-                    refine_out_wholeimg = img * (1 - mask) + refine_out * mask
+                psnr_val = psnr(refine_out_wholeimg, img)
+                ssim_val = ssim(refine_out_wholeimg, img)
+                psnr_vals.append(psnr_val)
+                ssim_vals.append(ssim_val)
 
-                    psnr_val = psnr(refine_out_wholeimg, img)
-                    ssim_val = ssim(refine_out_wholeimg, img)
-                    psnr_vals.append(psnr_val)
-                    ssim_vals.append(ssim_val)
+        return psnr_vals.mean(), ssim_vals.mean()
 
-                psnr_avgs.append(np.array(psnr_vals).mean())
-                ssim_avgs.append(np.array(ssim_vals).mean())
 
         # Evaluate should simplt return the avg psnr and avg_ssim
         # Let's not plot any figures.
-        fig = plt.figure()
-        plt.plot(psnr_avgs)
-        fig.suptitle("PSNR", fontsize=20)
-        plt.xlabel("epochs", fontsize=18)
-        plt.ylabel("PSNR", fontsize=16)
-        # fig.savefig("Network psnr.jpg")
-
-        fig2 = plt.figure()
-        plt.plot(ssim_avgs)
-        fig2.suptitle("SSIM", fontsize=20)
-        plt.xlabel("epochs", fontsize=18)
-        plt.ylabel("SSIM", fontsize=16)
-        fig2.savefig("Network ssim.jpg")
+        # fig = plt.figure()
+        # plt.plot(psnr_avgs)
+        # fig.suptitle("PSNR", fontsize=20)
+        # plt.xlabel("epochs", fontsize=18)
+        # plt.ylabel("PSNR", fontsize=16)
+        # # fig.savefig("Network psnr.jpg")
+        #
+        # fig2 = plt.figure()
+        # plt.plot(ssim_avgs)
+        # fig2.suptitle("SSIM", fontsize=20)
+        # plt.xlabel("epochs", fontsize=18)
+        # plt.ylabel("SSIM", fontsize=16)
+        # fig2.savefig("Network ssim.jpg")
