@@ -1,23 +1,23 @@
 #!/bin/bash
 
 #SBATCH --time=120:00:00
-#SBATCH --job-name=inpaint_exp4
+#SBATCH --job-name=inpaint_exp12
 #SBATCH --partition=jiang
 #SBATCH --mem=24G
 #SBATCH --gres=gpu:a5000:1
 #SBATCH --cpus-per-task=4
-#SBATCH --output=../../../experiments/inpaint/outs/exp_4.out
+#SBATCH --output=../../../experiments/inpaint/outs/exp_12.out
 
 
 module load cuda/11.3
 cd ..
 python train.py --train_ds_dir '../../../Datasets/Places365_Standard/data_large' \
                 --val_ds_dir '../../../Datasets/Places365_Standard/val_large' \
-                --CKPT_DIR '../../experiments/inpaint/ckpts/exp4' \
-                --LOG_DIR '../../experiments/inpaint/logs/exp4' \
-                --SAMPLE_DIR '../../experiments/inpaint/samples/exp4' \
+                --CKPT_DIR '../../experiments/inpaint/ckpts/exp12' \
+                --LOG_DIR '../../experiments/inpaint/logs/exp12' \
+                --SAMPLE_DIR '../../experiments/inpaint/samples/exp12' \
                 --crop_size 256 256 \
-                --mask_type 'box' \
+                --mask_type 'all_masks' \
                 --mask_num 20 \
                 --max_angle 4 \
                 --max_len 40 \
@@ -54,5 +54,4 @@ python train.py --train_ds_dir '../../../Datasets/Places365_Standard/data_large'
                 --init_type 'kaiming' \
                 --init_gain 0.02 \
                 --use_perceptualnet \
-                --sn_enable \
-                --add_context_attention
+                --sn_enable 
