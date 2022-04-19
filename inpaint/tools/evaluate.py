@@ -22,15 +22,15 @@ class Evaluate:
         # remove cfg
         self.generator = generator
         self.val_loader = val_loader
-        #chage it cuda on windows
-        self.device = torch.device('cpu')
-
         self.val_steps = val_steps
-
+        if torch.cuda.is_available():
+            self.device = torch.device("cuda")
+        else:
+            self.device = torch.device("cpu")
     def _create_mask(self, img):
         flip = flipCoin()
         B, C, H, W = img.shape
-        mask = torch.empty(B, 1, H, W) #.cuda()
+        mask = torch.empty(B, 1, H, W)  # .cuda()
         # set the same masks for each batch
         for i in range(B):
             if flip == True:
@@ -79,14 +79,8 @@ class Evaluate:
             # generator.to(self.device)
             # generator.eval()
 
-            for step in range(self.val_steps):
-                try:
-                    img = next(val_iter)
-                except:
-                    val_iter = iter(self.val_loader)
-                    img = next(val_iter)
-
-                img = img.to(self.device)
+            for _ ,img in enumerate(self.val_loader):
+                # img = img.to(self.device)
                 B, C, H, W = img.shape
 
                 mask = self._create_mask(img)
