@@ -18,11 +18,10 @@ def flipCoin():
 class Evaluate:
     # Evaluate args: generator and val_loader
     # Single instance of GatedGenerator should be be initialized in examples/evaluate.ipynb
-    def __init__(self, generator, val_loader, val_steps):
+    def __init__(self, generator, val_loader):
         # remove cfg
         self.generator = generator
         self.val_loader = val_loader
-        self.val_steps = val_steps
         if torch.cuda.is_available():
             self.device = torch.device("cuda")
         else:
@@ -60,27 +59,16 @@ class Evaluate:
 
     def evaluate(self):
         # Set models to eval state for validation
-
-        val_iter = iter(self.val_loader)
-
-        ssim_avgs = []
-        psnr_avgs = []
-
         with torch.no_grad():
-            self.generator.eval()
             # for gen in checkpointslist:
             ssim_vals = []
             psnr_vals = []
 
-            # models = torch.load(gen)
-            # gen_model_state_dict = models["generator_state_dict"]
-            # generator.load_state_dict(gen_model_state_dict)
-            #
-            # generator.to(self.device)
-            # generator.eval()
+            self.generator= self.generator.to(self.device)
+            self.generator.eval()
 
             for _ ,img in enumerate(self.val_loader):
-                # img = img.to(self.device)
+                img = img.to(self.device)
                 B, C, H, W = img.shape
 
                 mask = self._create_mask(img)
@@ -98,19 +86,3 @@ class Evaluate:
             psnr_vals_mean = sum(psnr_vals) / len(psnr_vals)
             ssim_vals_mean = sum(ssim_vals) / len(ssim_vals)
         return psnr_vals_mean, ssim_vals_mean
-
-        # Evaluate should simplt return the avg psnr and avg_ssim
-        # Let's not plot any figures.
-        # fig = plt.figure()
-        # plt.plot(psnr_avgs)
-        # fig.suptitle("PSNR", fontsize=20)
-        # plt.xlabel("epochs", fontsize=18)
-        # plt.ylabel("PSNR", fontsize=16)
-        # # fig.savefig("Network psnr.jpg")
-        #
-        # fig2 = plt.figure()
-        # plt.plot(ssim_avgs)
-        # fig2.suptitle("SSIM", fontsize=20)
-        # plt.xlabel("epochs", fontsize=18)
-        # plt.ylabel("SSIM", fontsize=16)
-        # fig2.savefig("Network ssim.jpg")
