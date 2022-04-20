@@ -40,6 +40,5 @@ def predict(generator, img, mask):
     result = cv2.convertScaleAbs(result, alpha=(255.0))
     result = np.clip(result, 0, 255)
     result = result.astype(np.uint8)
-    result = cv2.cvtColor(result, cv2.COLOR_RGB2BGR)
 
     return result
