@@ -36,7 +36,6 @@ def predict(generator, img, mask):
 
     refine_output = denorm(refine_output)
 
-    refine_output = refine_output.cpu().detach().numpy()
     result = refine_output.clone().data.permute(0, 2, 3, 1)[0, :, :, :].cpu().numpy()
     result = cv2.convertScaleAbs(result, alpha=(255.0))
     result = np.clip(result, 0, 255)
