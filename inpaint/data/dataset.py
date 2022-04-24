@@ -10,6 +10,12 @@ from inpaint.utils import get_files
 
 
 class BaseDataset(Dataset):
+    """
+    Base Dataset class that can be inherited to read from various datasets
+    and perform data augmentations.
+
+    """
+
     def __init__(self):
         pass
 
@@ -45,6 +51,19 @@ class BaseDataset(Dataset):
 
 
 class PlacesDataset(BaseDataset):
+    """
+    Class to read Places 365 Dataset (http://places2.csail.mit.edu/download.html).
+
+    Params
+    ------
+    path_dir: str
+        root director for the train, val or test split of Places 365 dataset.
+    transform_config: tuple, default: ("to_tensor", "random_crop", "norm")
+        data augmentation/transformation operations
+    crop_size: tuple, default: (256, 256)
+        crop size of the image
+    """
+
     def __init__(
         self,
         path_dir,

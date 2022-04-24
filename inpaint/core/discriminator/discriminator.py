@@ -5,18 +5,18 @@ import torch.nn.init as init
 from inpaint.core.modules import Conv2dLayer
 
 
-# -----------------------------------------------
-#                  Discriminator
-# -----------------------------------------------
-# Input: generated image / ground truth and mask
-# Output: patch based region, we set 30 * 30
 class PatchDiscriminator(nn.Module):
+    """
+    Discriminator model from Patch based Image Inpainting with GAN.
+    https://arxiv.org/abs/1803.07422
+
+    """
+
     def __init__(self, cfg):
         super(PatchDiscriminator, self).__init__()
         self.init_type = "kaiming"
         self.init_gain = 0.02
 
-        # Down sampling
         self.block1 = Conv2dLayer(
             in_channels=cfg.in_channels,
             out_channels=cfg.latent_channels,
@@ -109,12 +109,28 @@ class PatchDiscriminator(nn.Module):
             init.constant_(m.bias, 0)
 
     def forward(self, img, mask):
+        """
+        Forward pass of the Discriminator.
+
+        Params
+        ------
+        img: torch.tensor
+            a tensor representing the image of shape (N, 3, H, W)
+        mask: torch.tensor
+            a tensor representing the mask of shape (N, 1, H, W)
+
+
+        Returns
+        -------
+        torch.tensor: a feature map of shape (N, 256, 8, 8)
+        """
         # the input x should contain 4 channels because it is a combination of recon image and mask
         x = torch.cat((img, mask), 1)
-        x = self.block1(x)  # out: [B, 64, 256, 256]
-        x = self.block2(x)  # out: [B, 128, 128, 128]
-        x = self.block3(x)  # out: [B, 256, 64, 64]
-        x = self.block4(x)  # out: [B, 256, 32, 32]
-        x = self.block5(x)  # out: [B, 256, 16, 16]
-        x = self.block6(x)  # out: [B, 256, 8, 8]
+
+        x = self.block1(x)
+        x = self.block2(x)
+        x = self.block3(x)
+        x = self.block4(x)
+        x = self.block5(x)
+        x = self.block6(x)
         return x
