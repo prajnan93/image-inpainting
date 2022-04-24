@@ -16,17 +16,17 @@ def predict(generator, img, mask):
     generator = generator.to(device)
     generator.eval()
 
-    img = torch.from_numpy(img.astype(np.float32))
-    mask = torch.from_numpy(mask.astype(np.float32))
+    # img = torch.from_numpy(img.astype(np.float32))
+    # mask = torch.from_numpy(mask.astype(np.float32))
 
     img = img.to(device)
     mask = mask.to(device)
 
-    normalize = transforms.Compose(
-        [transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])]
-    )
+    # normalize = transforms.Compose(
+    #     [transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])]
+    # )
 
-    img = normalize(img)
+    # img = normalize(img)
 
     img = img.unsqueeze(0)
     mask = mask.unsqueeze(0)
