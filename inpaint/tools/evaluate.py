@@ -1,9 +1,6 @@
-# Remove unused import
-
 import os
 import random
 
-# import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
@@ -16,20 +13,31 @@ def flipCoin():
 
 
 class Evaluate:
-    # Evaluate args: generator and val_loader
-    # Single instance of GatedGenerator should be be initialized in examples/evaluate.ipynb
+    """
+    Perform evaluation for a given generator.
+
+    Params
+    ------
+    generator: torch.nn.Module
+        an instance of a generator
+    val_loader: torch.utils.data.DataLoader
+        the validation dataloader
+    """
+
     def __init__(self, generator, val_loader):
-        # remove cfg
+
         self.generator = generator
         self.val_loader = val_loader
         if torch.cuda.is_available():
             self.device = torch.device("cuda")
         else:
             self.device = torch.device("cpu")
+
     def _create_mask(self, img):
         flip = flipCoin()
         B, C, H, W = img.shape
-        mask = torch.empty(B, 1, H, W)  # .cuda()
+        mask = torch.empty(B, 1, H, W)
+
         # set the same masks for each batch
         for i in range(B):
             if flip == True:
@@ -58,31 +66,42 @@ class Evaluate:
         return mask
 
     def evaluate(self):
-        # Set models to eval state for validation
+        """
+        Performs evaluation and returns the average psnr and ssim metric
+        for the given dataset.
+
+        Returns
+        -------
+        avg_psnr, avg_ssim: (float32, float32)
+
+        """
         with torch.no_grad():
             # for gen in checkpointslist:
             ssim_vals = []
             psnr_vals = []
 
-            self.generator= self.generator.to(self.device)
+            self.generator = self.generator.to(self.device)
+
+            # Set models to eval state for validation
             self.generator.eval()
 
-            for _ ,img in enumerate(self.val_loader):
+            for _, img in enumerate(self.val_loader):
                 img = img.to(self.device)
                 B, C, H, W = img.shape
 
                 mask = self._create_mask(img)
 
                 # Generate fake pixel values for the given mask and real images
-                coarse_out, refine_out = self.generator(img, mask)
+                _, refine_out = self.generator(img, mask)
 
-                coarse_out_wholeimg = img * (1 - mask) + coarse_out * mask
                 refine_out_wholeimg = img * (1 - mask) + refine_out * mask
 
                 psnr_val = psnr(refine_out_wholeimg, img)
                 ssim_val = ssim(refine_out_wholeimg, img)
                 psnr_vals.append(psnr_val)
                 ssim_vals.append(ssim_val)
+
             psnr_vals_mean = sum(psnr_vals) / len(psnr_vals)
             ssim_vals_mean = sum(ssim_vals) / len(ssim_vals)
+
         return psnr_vals_mean, ssim_vals_mean

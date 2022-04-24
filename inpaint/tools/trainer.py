@@ -23,7 +23,16 @@ class Trainer:
 
     Params
     ------
-
+    cfg: argparse config object
+        configuration of the trainer
+    discriminator: torch.nn.Module
+        the discriminator of the GAN
+    generator: torch.nn.Module
+        the generator of the GAN
+    train_loader: torch.utils.data.DataLoader
+        the traning data loader
+    val_loader: torch.utils.data.DataLoader
+        the validation data loader
     """
 
     def __init__(
@@ -537,6 +546,10 @@ class Trainer:
         return losses
 
     def train(self):
+        """
+        Train the GAN model.
+
+        """
         os.makedirs(self.cfg.CKPT_DIR, exist_ok=True)
         os.makedirs(self.cfg.LOG_DIR, exist_ok=True)
         os.makedirs(self.cfg.SAMPLE_DIR, exist_ok=True)
