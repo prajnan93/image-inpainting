@@ -4,6 +4,7 @@ ___
 
 ### About
 
+
 ___
 ### Setup
 
@@ -21,7 +22,7 @@ Here's how to set up `inpaint` for local development and testing.
     $ conda activate inpaint
     $ python setup.py develop
 
-4. Please note this repo is not accepting any constributions.
+4. Please note this repo is not accepting any contributions.
 
 ___
 
@@ -36,7 +37,7 @@ ___
 
 ___
 
-### Citation
+### Citations
 
 ```
 @article{yu2018generative,
@@ -65,8 +66,11 @@ ___
 ___
 
 ### References
-[Free-Form Image Inpainting with Gated Convolution](https://github.com/JiahuiYu/generative_inpainting)
-[GatedConvolution_pytorch](https://github.com/avalonstrel/GatedConvolution_pytorch)
-[DeepFillv2_Pytorch](https://github.com/csqiangwen/DeepFillv2_Pytorch)
-[Places365 Dataset](http://places2.csail.mit.edu/index.html)
+- [Free-Form Image Inpainting with Gated Convolution](https://github.com/JiahuiYu/generative_inpainting)
+
+- [GatedConvolution_pytorch](https://github.com/avalonstrel/GatedConvolution_pytorch)
+
+- [DeepFillv2_Pytorch](https://github.com/csqiangwen/DeepFillv2_Pytorch)
+
+- [Places365 Dataset](http://places2.csail.mit.edu/index.html)
 
