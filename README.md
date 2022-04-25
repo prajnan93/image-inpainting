@@ -59,7 +59,9 @@ ___
 
 ### Acknowledgements
 
+This repository acknowleges the official implementation of [DeepFillV2 Free Form Image Inpainting](https://arxiv.org/abs/1806.03589v2) and the [Places365 Dataset](http://places2.csail.mit.edu/index.html) datasets. 
 
+And thanks to [Northeastern University Discovery HPC](https://rc.northeastern.edu/) for providing the compute support.
 ___
 
 ### Citations
@@ -103,7 +105,7 @@ ___
 
 ### License
 
-This python package is for education and research purpose only.
+This python package is for education and research purposes only.
 
 Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 
