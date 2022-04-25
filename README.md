@@ -1,9 +1,10 @@
-# Image Inpainting
+# Image Inpainting using Generative Adversarial Network
 
 ___
 
 ### About
 
+A pytorch implementation of the paper [Free Form Image Inpainting with Gated Convolution](https://arxiv.org/abs/1806.03589v2). 
 
 ___
 ### Setup
@@ -29,15 +30,15 @@ ___
 
 - Setup the inpaint conda environment as mentioned above.
 - Follow the instructions provided in the jupyter notebooks in the directory `examples`.
-- Each notebook in the `examples` directory provides an example of dataloading, training, evaluation and prediction.
-- Make sure to have at least 16Gb of CUDA GPU memory for training the model.
+- Each notebook in the `examples` directory provides an example of mask visualization, training, evaluation and prediction.
+- Make sure to have at least 16Gb of CUDA GPU memory for training the model. Few example training scripts with differnt model configurations are provided in the `scripts` directory.
 - Please note checkpoints for prediction are not included yet (Coming Soon).  
 
 ___
 
 ### Checkpoints of Pretrained models and Predictions in Google Colab 
 
-coming soon.
+coming soon. 
 
 ___
 
