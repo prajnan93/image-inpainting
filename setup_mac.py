@@ -15,7 +15,7 @@ REPOSITORY = "https://github.com/prajnan93/image-inpainting"
 # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
 CLASSIFIERS = [
     "Development Status :: 2 - Pre-Alpha",
-    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
     "Natural Language :: English",
     "Programming Language :: Python :: 3.8",
 ]
