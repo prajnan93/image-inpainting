@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#SBATCH --time=120:00:00
+#SBATCH --time=08:00:00
 #SBATCH --job-name=inpaint_exp8
-#SBATCH --partition=jiang
+#SBATCH --partition=gpu
 #SBATCH --mem=24G
-#SBATCH --gres=gpu:a5000:1
+#SBATCH --gres=gpu:p100:1
 #SBATCH --cpus-per-task=4
 #SBATCH --output=../../../experiments/inpaint/outs/exp_8.out
 
