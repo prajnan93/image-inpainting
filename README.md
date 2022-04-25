@@ -4,7 +4,22 @@ ___
 
 ### About
 
-A pytorch implementation of the paper [Free Form Image Inpainting with Gated Convolution](https://arxiv.org/abs/1806.03589v2). 
+A pytorch implementation of the paper [Free Form Image Inpainting with Gated Convolution](https://arxiv.org/abs/1806.03589v2). The code can be install as a python package called `inpaint`. The inpaint package provides APIs to :
+ - Create a Pytorch Dataset for Places365 dataset
+   ```
+   from inpaint.data import PlacesDataset 
+   ```
+ - Configure and setup Generator and Discriminator
+   ```
+   from inpaint.core.discriminator import PatchDiscriminator
+   from inpaint.core.generator import GatedGenerator'
+   ````
+ - Configure and setup training, evaluation and prediction
+   ```
+   from inpaint.tools import Trainer, Evaluate, predict
+   ```
+ 
+ Tutorial and documentation for APIs are provided in the `examples` directory.
 
 ___
 ### Setup
@@ -84,3 +99,19 @@ ___
 
 - [Places365 Dataset](http://places2.csail.mit.edu/index.html)
 
+___
+
+### License
+
+This python package is for education and research purpose only.
+
+Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
+
+This work is licensed under a
+[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa].
+
+[![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
+
+[cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
+[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
+[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
