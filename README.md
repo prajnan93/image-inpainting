@@ -25,6 +25,15 @@ Here's how to set up `inpaint` for local development and testing.
 4. Please note this repo is not accepting any contributions.
 
 ___
+### Tutorials and Documentation
+
+- Setup the inpaint conda environment as mentioned above.
+- Follow the instructions provided in the jupyter notebooks in the directory `examples`.
+- Each notebook in the `examples` directory provides an example of dataloading, training, evaluation and prediction.
+- Make sure to have at least 16Gb of CUDA GPU memory for training the model.
+- Please note checkpoints for prediction are not included yet (Coming Soon).  
+
+___
 
 ### Checkpoints of Pretrained models and Predictions in Google Colab 
 
