@@ -49,7 +49,7 @@ CONFIG = {
     "version": VERSION,
     "description": DESCRIPTION,
     "author": "Prajnan Goswami, Sunjit Dhillon, Aditya Appana",
-    "author_email": "prajnan1993@gmai.com",
+    "author_email": "prajnan.videoworks@gmail.com",
     "classifiers": CLASSIFIERS,
     "keywords": KEYWORDS,
     "url": REPOSITORY,
