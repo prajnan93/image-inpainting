@@ -37,10 +37,6 @@ PROJECT = os.path.abspath(os.path.dirname(__file__))
 
 REQUIRE_PATH = "requirements.txt"
 
-if platform.system().lower() != "windows" and platform.system().lower() != "linux":
-    REQUIRE_PATH = "envMacm1pro.txt"
-
-
 with pathlib.Path(REQUIRE_PATH).open() as requirements_txt:
     INSTALL_REQUIRES = [
         str(requirement)
@@ -52,6 +48,8 @@ CONFIG = {
     "name": NAME,
     "version": VERSION,
     "description": DESCRIPTION,
+    "author": "Prajnan Goswami, Sunjit Dhillon, Aditya Appana",
+    "author_email": "prajnan1993@gmai.com",
     "classifiers": CLASSIFIERS,
     "keywords": KEYWORDS,
     "url": REPOSITORY,
