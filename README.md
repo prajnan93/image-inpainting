@@ -59,7 +59,7 @@ ___
 
 [Pretrained Checkpoint](https://drive.google.com/file/d/1acokmZ487CZlvRMMyYyWWegAFiICnL-y/view?usp=sharing)
 
-google colab demo: comming soon
+google colab demo: coming soon
 ___
 
 ### Acknowledgements
