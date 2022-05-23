@@ -57,7 +57,7 @@ ___
 
 ### Checkpoints of Pretrained models and Predictions in Google Colab 
 
-coming soon. 
+[Pretrained Checkpoint](https://drive.google.com/file/d/1acokmZ487CZlvRMMyYyWWegAFiICnL-y/view?usp=sharing)
 
 ___
 
