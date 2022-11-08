@@ -25,7 +25,8 @@ A pytorch implementation of the paper [Free Form Image Inpainting with Gated Con
 ### Results 
 <img width="1082" alt="Screenshot 2022-05-22 at 4 07 24 PM" src="https://user-images.githubusercontent.com/63877211/169713817-960b4e8c-fd6d-4bea-b36f-2050a499bd0b.png">
 
-<img width="1082" alt="norm visualization" src="https://user-images.githubusercontent.com/63877211/169713817-960b4e8c-fd6d-4bea-b36f-2050a499bd0b.png">
+<img width="1082" alt="norm visualization" src="https://user-images.githubusercontent.com/89991031/200466832-993dfb61-a2fc-4078-9b8e-1a85e237c304.png">
+
 ___
 ### Setup
 
