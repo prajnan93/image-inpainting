@@ -52,8 +52,7 @@ ___
 - Setup the inpaint conda environment as mentioned above.
 - Follow the instructions provided in the jupyter notebooks in the directory `examples`.
 - Each notebook in the `examples` directory provides an example of mask visualization, training, evaluation and prediction.
-- Make sure to have at least 16Gb of CUDA GPU memory for training the model. Few example training scripts with differnt model configurations are provided in the `scripts` directory.
-- Please note checkpoints for prediction are not included yet (Coming Soon).  
+- Make sure to have at least 16Gb of CUDA GPU memory for training the model. Few example training scripts with differnt model configurations are provided in the `scripts` directory. 
 
 ___
 
