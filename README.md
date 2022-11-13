@@ -38,9 +38,9 @@ Here's how to set up `inpaint` for local development and testing.
 
     $ git clone https://github.com/prajnan93/image-inpainting
 
-3. Create a Conda virtual environment using the `environment.yml` file.  Install your local copy of the package into the environment::
+3. Create a Conda virtual environment using the `env.yml` file.  Install your local copy of the package into the environment::
 
-    - $ conda env create -f environment.yml
+    - $ conda env create -f env.yml
     - $ conda activate inpaint
     - $ python setup.py develop
 
